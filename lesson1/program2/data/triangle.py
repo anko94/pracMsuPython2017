@@ -1,4 +1,4 @@
-from lesson1.program2.point import Point
+from lesson1.program2.data.point import Point
 
 
 class Triangle:
