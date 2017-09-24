@@ -11,9 +11,20 @@ class Straight:
 
     # 1 if point on the straight, 0 - otherwise
     def isPointOnTheStraight(self, point3: Point):
-        eq1 = (point3.x-self.point0.x)/self.a.m
-        eq2 = (point3.y-self.point0.y)/self.a.n
-        eq3 = (point3.z-self.point0.z)/self.a.k
-        if eq1 != eq2 or eq2 != eq3 or eq1 != eq3 :
-            return 0
-        return 1
+        if self.a.m!=0:
+            eq1 = (point3.x-self.point0.x)/self.a.m
+        else:
+            eq1 = point3.x-self.point0.x
+        if self.a.n!=0:
+            eq2 = (point3.y-self.point0.y)/self.a.n
+        else:
+            eq2 = point3.y-self.point0.y
+        if self.a.k!=0:
+            eq3 = (point3.z-self.point0.z)/self.a.k
+        else:
+            eq3 = point3.z-self.point0.z
+        if eq1 == eq2 and eq2 == eq3 or self.a.m == 0 and eq1==0 and eq2 == eq3 or self.a.n==0 and eq2==0 and eq1==eq3 \
+                or self.a.k==0 and eq3==0 and eq2==eq1 or self.a.m==0 and self.a.n==0 and eq2==0 and eq1==0 or \
+                                         self.a.m==0 and self.a.k==0 and eq1==0 and eq3==0 or self.a.n==0 and self.a.k==0 and eq2==0 and eq3==0:
+            return 1
+        return 0
