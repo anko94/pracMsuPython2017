@@ -1,3 +1,2 @@
-class NotIntException:
-    def __init__(self):
-        self
+class NotIntException(Exception):
+    pass
