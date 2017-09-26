@@ -8,7 +8,7 @@ from lesson1.program2.data.vector import Vector
 
 class Algebra:
 
-    accuracy = 0.000000000001
+    accuracy = 0.0000000000000001
 
     def getPlane(self, point1: Point, point2: Point, point3: Point):
         A = (point2.y - point1.y)*(point3.z-point1.z)-(point2.z-point1.z)*(point3.y-point1.y)
@@ -126,7 +126,7 @@ class Algebra:
         dist5 = self.getDistanceBetweenTwoPoints(point0, point3)
         dist6 = self.getDistanceBetweenTwoPoints(point0, point4)
 
-        if (dist2<=dist1 and dist3<=dist1 and dist4>=dist5 and dist4>=dist6) :
+        if (abs(dist2-dist1)<=self.accuracy and abs(dist3-dist1)<=self.accuracy and abs(dist4-dist5)>=self.accuracy and abs(dist4-dist6)>=self.accuracy) :
             return 1
         return 0
 

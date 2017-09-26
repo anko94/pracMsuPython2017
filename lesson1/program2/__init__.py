@@ -44,9 +44,9 @@ if __name__ == "__main__":
     alg = Algebra()
     # 1 if triangles intersect, 0 - otherwise
     isTrianglesIntersect = 0
-    accuracy = 0.000000000001
-    triangle1 = Triangle(Point(2, -5, -1), Point(-22/13, -19/13, 0), Point(-3, 1/2, 0))
-    triangle2 = Triangle(Point(-1, 1, 1), Point(-24/13, -42/13, 1), Point(1, 6, 6))
+    accuracy = 0.0000000001
+    triangle1 = Triangle(Point(3, 1, 0), Point(1, 0, -1), Point(0, 23/8, -9/8))
+    triangle2 = Triangle(Point(-1, -1, 0), Point(6, -7/8, 9/8), Point(20, 20, -42))
     plane1 = alg.getPlane(triangle1.point1, triangle1.point2, triangle1.point3)
     plane2 = alg.getPlane(triangle2.point1, triangle2.point2, triangle2.point3)
 
@@ -149,7 +149,7 @@ if __name__ == "__main__":
                     if minValue > pointsD[j]:
                         minValue = pointsD[j]
                         minIndex = j
-                pointsD[minIndex] =  pointsD[i]
+                pointsD[minIndex] = pointsD[i]
                 pointsD[i] = minValue
                 a = points[minIndex]
                 points[minIndex] = points[i]
