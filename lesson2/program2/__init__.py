@@ -22,7 +22,7 @@ def d(list, index, l):
 
 if __name__ == "__main__":
 
-    list = [2,3,3,3,5,6,8,1,2,3,4,5,6]
+    list = [2,3,4,3,9,8,1,3,4,5,6]
 
     for i in range(len(list)):
         if not type(list[i]) is int:
