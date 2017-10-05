@@ -19,8 +19,10 @@ class MatplotlibObject():
         self.b = self.axes.plot(X, Y)
         self.canvas.show()
 
+    # def getMouseCoordinates(self):
+
     def __init__(self, parent):
-        self.figure = Figure(figsize=(10, 10), dpi=200)
+        self.figure = Figure(figsize=(5, 5), dpi=300)
         self.axes = self.figure.add_subplot(111, xlim=[-100, 100], ylim=[-100, 100])
 
         X = numpy.linspace(-100, 100, endpoint=True)
