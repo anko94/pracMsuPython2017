@@ -13,6 +13,12 @@ class MatplotlibObject():
     def getCanvas(self):
         return self.canvas
 
+    def getCurrentAxes(self):
+        return (self.axes.get_xlim(), self.axes.get_ylim())
+
+    def getCircleList(self):
+        return self.circleList
+
     def scaleAxes(self, scale):
         xlim = self.axes.get_xlim()
         ylim = self.axes.get_ylim()
@@ -31,10 +37,12 @@ class MatplotlibObject():
                                           fill=True,
                                           visible=True,
                                           color=self.curColor)
+        self.circleList.append((self.curXY, self.curR, self.curColor))
         self.axes.add_patch(circle)
         self.canvas.show()
 
     def __init__(self, parent):
+        self.circleList = []
         self.curXY = (0, 0)
         self.curR = 1
         self.curColor = (0, 0, 0)

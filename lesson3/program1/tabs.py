@@ -1,6 +1,7 @@
 from tkinter import ttk
 import tkinter
 from tkinter.colorchooser import *
+import xml.etree.cElementTree as et
 
 
 class Tabs:
@@ -19,10 +20,58 @@ class Tabs:
     def getRadius(self):
         return self.w.get()
 
-    def __init__(self, root):
-        style = ttk.Style()
-        style.configure("TNotebook.Tab", background='gray', foreground="black", font=1)#, height=12, padding=20,
+    def saveFile(self):
+        root = et.Element("root")
+        axes = et.SubElement(root, "axes")
+        xlim = et.SubElement(axes, "xlim")
+        xmax = et.SubElement(axes, "xmax")
+        ylim = et.SubElement(axes, "ylim")
+        ymax = et.SubElement(axes, "ymax")
+        currentAxes = self.mo.getCurrentAxes()
+        xlim.text = str(currentAxes[0][0])
+        xmax.text = str(currentAxes[0][1])
+        ylim.text = str(currentAxes[1][0])
+        ymax.text = str(currentAxes[1][1])
+        color = et.SubElement(root, "color")
+        r = et.SubElement(color, "r")
+        g = et.SubElement(color, "g")
+        b = et.SubElement(color, "b")
+        c = (0, 0, 0)
+        if self.color[0] != 0:
+            c = (self.color[0][0] / 255, self.color[0][1] / 255, self.color[0][2] / 255)
+        r.text = str(c[0])
+        g.text = str(c[1])
+        b.text = str(c[2])
+        slider = et.SubElement(root, "slider")
+        slider.text = str(self.w.get())
+        circles = et.SubElement(root, "circles")
+        circleList = self.mo.getCircleList()
+        if len(circleList) != 0:
+            for i in range(len(circleList)):
+                circle = circleList[i]
+                cir = et.SubElement(circles, "circle")
+                x = et.SubElement(cir, "x")
+                x.text = str(circle[0][0])
+                y = et.SubElement(cir, "y")
+                y.text = str(circle[0][1])
+                radius = et.SubElement(cir, "radius")
+                radius.text = str(circle[1])
+                rcircle = et.SubElement(cir, "r")
+                rcircle.text = str(circle[2][0])
+                gcircle = et.SubElement(cir, "g")
+                gcircle.text = str(circle[2][1])
+                bcircle = et.SubElement(cir, "b")
+                bcircle.text = str(circle[2][2])
+        tree = et.ElementTree(root)
+        tree.write(self.savefiledialog.get(1.0, tkinter.END)+".xml")
 
+    def loadFile(self):
+        print("load")
+
+    def __init__(self, root, mo):
+        style = ttk.Style()
+        self.mo = mo
+        style.configure("TNotebook.Tab", background='gray', foreground="black", font=1)#, height=12, padding=20,
         nb = ttk.Notebook(root)
         page1 = ttk.Frame(nb, height=150, width=50)
         self.text1 = tkinter.Text(page1, height=1, width=50)
@@ -55,6 +104,15 @@ class Tabs:
         self.text3.pack(side='right')
 
         page2 = ttk.Frame(nb)
+
+        # xml-file
+        self.savefiledialog = tkinter.Text(page2, height=1, width=50)
+        self.savefiledialog.pack()
+        tkinter.Button(page2, text='save file', command=self.saveFile).pack()
+        self.openfiledialog = tkinter.Text(page2, height=1, width=50)
+        self.openfiledialog.pack()
+        tkinter.Button(page2, text='load file', command=self.loadFile).pack()
+
         nb.add(page1, text='Edit')
         nb.add(page2, text='Model')
         nb.pack(side='left')

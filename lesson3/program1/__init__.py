@@ -12,7 +12,7 @@ if __name__ == "__main__":
     cursor = Cursor(mo, 'spyAxes')
     scb1 = ScaleButton(root, mo, "-")
     scb2 = ScaleButton(root, mo, "+")
-    tabs = Tabs(root)
+    tabs = Tabs(root, mo)
     cursor.setTabs(tabs)
 
     root.mainloop()
