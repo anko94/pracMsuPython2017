@@ -19,13 +19,24 @@ class MatplotlibObject():
     def getCircleList(self):
         return self.circleList
 
+    def loadFromXml(self, xy, circleList):
+        self.axes.clear()
+        self.axes.set_xlim(xy[0], xy[1])
+        self.axes.set_ylim(xy[2], xy[3])
+        for i in range(len(circleList)):
+            self.drawCircle(circleList[i][0], circleList[i][1], circleList[i][2])
+        self.canvas.show()
+
+
     def scaleAxes(self, scale):
         xlim = self.axes.get_xlim()
         ylim = self.axes.get_ylim()
         self.axes.clear()
         self.axes.set_xlim(xlim[0] * scale, xlim[1] * scale)
         self.axes.set_ylim(ylim[0] * scale, ylim[1] * scale)
-        self.drawCircle(self.curXY, self.curR, self.curColor)
+        if len(self.circleList) != 0:
+            for i in range(len(self.circleList)):
+                self.drawCircle(self.circleList[i][0], self.circleList[i][1], self.circleList[i][2])
         self.canvas.show()
 
     def drawCircle(self, xy, r, color):

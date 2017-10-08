@@ -66,25 +66,41 @@ class Tabs:
         tree.write(self.savefiledialog.get(1.0, tkinter.END)+".xml")
 
     def loadFile(self):
-        print("load")
+        tree = et.parse(self.openfiledialog.get(1.0, tkinter.END)+'.xml')
+        root = tree.getroot()
+        xlim = float(root[0][0].text)
+        xmax = float(root[0][1].text)
+        ylim = float(root[0][2].text)
+        ymax = float(root[0][3].text)
+        color = (float(root[1][0].text), float(root[1][1].text), float(root[1][2].text))
+        self.defaultColor = (int(color[0]*255), int(color[1]*255), int(color[2]*255))
+        slider = float(root[2].text)
+        circles = root.find('circles')
+        circleList = []
+        for circle in circles.findall('circle'):
+            circleList.append(((float(circle[0].text), float(circle[1].text)), float(circle[2].text), (float(circle[3].text), float(circle[4].text), float(circle[5].text))))
+        self.w.set(slider)
+        self.mo.loadFromXml((xlim, xmax, ylim, ymax), circleList)
 
     def __init__(self, root, mo):
         style = ttk.Style()
         self.mo = mo
-        style.configure("TNotebook.Tab", background='gray', foreground="black", font=1)#, height=12, padding=20,
+        style.configure("TNotebook.Tab", background='gray', foreground="black", font=1)
         nb = ttk.Notebook(root)
         page1 = ttk.Frame(nb, height=150, width=50)
         self.text1 = tkinter.Text(page1, height=1, width=50)
         self.text1.pack()
         self.text2 = tkinter.Text(page1, height=1, width=50)
         self.text2.pack()
-
+        self.defaultColor = (0, 0, 0)
         self.color = (0, 0, 0)
 
         #color
         def getColor():
-            color = askcolor()
+            color = askcolor(self.defaultColor)
             self.color = color
+            if color[0] is not None:
+                self.defaultColor = (int(color[0][0]), int(color[0][1]), int(color[0][2]))
 
         tkinter.Button(page1, text='Select Color', command=getColor).pack(side='left')
 
