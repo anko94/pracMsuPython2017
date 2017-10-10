@@ -122,13 +122,15 @@ class Tabs:
         page2 = ttk.Frame(nb)
 
         # xml-file
-        self.savefiledialog = tkinter.Text(page2, height=1, width=50)
+        page3 = ttk.Frame(nb)
+        self.savefiledialog = tkinter.Text(page3, height=1, width=50)
         self.savefiledialog.pack()
-        tkinter.Button(page2, text='save file', command=self.saveFile).pack()
-        self.openfiledialog = tkinter.Text(page2, height=1, width=50)
+        tkinter.Button(page3, text='save file', command=self.saveFile).pack()
+        self.openfiledialog = tkinter.Text(page3, height=1, width=50)
         self.openfiledialog.pack()
-        tkinter.Button(page2, text='load file', command=self.loadFile).pack()
+        tkinter.Button(page3, text='load file', command=self.loadFile).pack()
 
         nb.add(page1, text='Edit')
         nb.add(page2, text='Model')
+        nb.add(page3, text='Load/Save')
         nb.pack(side='left')

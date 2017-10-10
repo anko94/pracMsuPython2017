@@ -1,8 +1,8 @@
 import tkinter
-from lesson3.program1.cursor import Cursor
-from lesson3.program1.matplotlibobject import MatplotlibObject
-from lesson3.program1.scalebutton import ScaleButton
-from lesson3.program1.tabs import Tabs
+from lesson4.program1.cursor import Cursor
+from lesson4.program1.matplotlibobject import MatplotlibObject
+from lesson4.program1.scalebutton import ScaleButton
+from lesson4.program1.tabs import Tabs
 
 if __name__ == "__main__":
 

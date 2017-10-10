@@ -58,7 +58,7 @@ class MatplotlibObject():
         self.curR = 1
         self.curColor = (0, 0, 0)
 
-        self.figure = Figure(figsize=(5, 5), dpi=300)
+        self.figure = Figure(figsize=(5, 5))
         self.axes = self.figure.add_subplot(111, xlim=[-100, 100], ylim=[-100, 100])
 
         self.canvas = FigureCanvasTkAgg(self.figure, parent)
