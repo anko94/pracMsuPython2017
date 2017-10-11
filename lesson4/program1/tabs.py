@@ -119,7 +119,26 @@ class Tabs:
         self.text3 = tkinter.Text(page1, height=1, width=5)
         self.text3.pack(side='right')
 
+        #radiobuttons
         page2 = ttk.Frame(nb)
+        self.chooseRadiobutton = -1
+        MODES = [
+            ("scipy", "1"),
+            ("verlet", "2"),
+            ("verlet-threading", "3"),
+            ("verlet-multiprocessing", "4"),
+            ("verlet-cython", "5"),
+            ("verlet-opencl", "6")
+        ]
+        v = tkinter.StringVar()
+        v.set("L")  # initialize
+        for text, mode in MODES:
+            def command(mode=mode, text=text):
+                self.chooseRadiobutton = mode
+                print(text, self.chooseRadiobutton)
+            b = tkinter.Radiobutton(page2, text=text,
+                            variable=v, value=mode, command=command)
+            b.pack(anchor=tkinter.W)
 
         # xml-file
         page3 = ttk.Frame(nb)
