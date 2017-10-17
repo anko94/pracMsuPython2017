@@ -8,7 +8,7 @@ from lesson1.program2.data.vector import Vector
 
 class Algebra:
 
-    accuracy = 0.0000000000000001
+    accuracy = 0.000000000001
 
     def getPlane(self, point1: Point, point2: Point, point3: Point):
         A = (point2.y - point1.y)*(point3.z-point1.z)-(point2.z-point1.z)*(point3.y-point1.y)
