@@ -8,7 +8,7 @@ from lesson1.program2.data.vector import Vector
 
 class Algebra:
 
-    accuracy = 0.000000000001
+    accuracy = 0.000000001
 
     def getPlane(self, point1: Point, point2: Point, point3: Point):
         A = (point2.y - point1.y)*(point3.z-point1.z)-(point2.z-point1.z)*(point3.y-point1.y)
@@ -88,29 +88,28 @@ class Algebra:
                 t1 = (point2.x-point1.x)/a1.m
                 if abs(a1.n*t1+point1.y-point2.y)<self.accuracy and abs(a1.k*t1+point1.z-point2.z)<self.accuracy:
                     return Point(t1 * a1.m + point1.x, t1 * a1.n + point1.y, t1 * a1.k + point1.z)
-            elif abs(a2.m)>self.accuracy:
+            if abs(a2.m)>self.accuracy:
                 s1 = (point1.x-point2.x)/a2.m
                 if abs(-a2.n*s1+point1.y-point2.y)<self.accuracy and abs(-a2.k*s1+point1.z-point2.x)<self.accuracy:
                     return Point(s1 * a2.m + point2.x, s1 * a2.n + point2.y, s1 * a2.k + point2.z)
-            elif abs(a1.n)>self.accuracy:
+            if abs(a1.n)>self.accuracy:
                 t2 = (point2.y-point1.y)/a1.n
                 if abs(point1.x-point2.x)<self.accuracy and abs(a1.k*t2+point1.z-point2.z)<self.accuracy:
                     return Point(t2 * a1.m + point1.x, t2 * a1.n + point1.y, t2 * a1.k + point1.z)
-            elif abs(a2.n)>self.accuracy:
+            if abs(a2.n)>self.accuracy:
                 s2 = (point1.y-point2.y)/a2.n
                 if abs(point1.x-point2.x)<self.accuracy and abs(-a2.k*s2+point1.z-point2.z)<self.accuracy:
                     return Point(s2 * a2.m + point2.x, s2 * a2.n + point2.y, s2 * a2.k + point2.z)
-            elif abs(a1.k)>self.accuracy:
+            if abs(a1.k)>self.accuracy:
                 t3 = (point2.z-point1.z)/a1.k
                 if abs(point1.x-point2.x)<self.accuracy and abs(point1.y-point2.y)<self.accuracy:
                     return Point(t2 * a1.m + point1.x, t2 * a1.n + point1.y, t2 * a1.k + point1.z)
-            elif abs(a2.k)>self.accuracy:
+            if abs(a2.k)>self.accuracy:
                 s3 = (point1.z - point2.z) / a2.k
                 if abs(point1.x-point2.x)<self.accuracy and abs(point1.y-point2.y)<self.accuracy:
                     return Point(s3 * a2.m + point2.x, s3 * a2.n + point2.y, s3 * a2.k + point2.z)
-            else:
-                if abs(point1.x-point2.x)<self.accuracy and abs(point1.y-point2.y)<self.accuracy and abs(point1.z-point2.z)<self.accuracy:
-                    return point2
+            if abs(point1.x-point2.x)<self.accuracy and abs(point1.y-point2.y)<self.accuracy and abs(point1.z-point2.z)<self.accuracy:
+                return point2
         return None
 
     def getDistanceBetweenTwoPoints(self, point1: Point, point2: Point):
