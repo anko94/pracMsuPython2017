@@ -86,49 +86,24 @@ class Algebra:
         elif abs(A1)>self.accuracy and abs(A2)<self.accuracy and abs(A3)<self.accuracy:
             t1 = self.det2x2(-(point1.x - point2.x), -a2.m, -(point1.y - point2.y), -a2.n) / A1
             s1 = self.det2x2(a1.m, -(point1.x - point2.x), a1.n, -(point1.y - point2.y)) / A1
-            # if abs(abs(point1.x - point2.x) - abs(point1.z - point2.z)) < self.accuracy \
-            #         and abs(abs(point1.y - point2.y) - abs(point1.z - point2.z)) < self.accuracy:
-            print(point1.x - point2.x, point1.z - point2.z, point1.y - point2.y, point1.z - point2.z)
-            return Point(t1 * a1.m + point1.x, t1 * a1.n + point1.y, t1 * a1.k + point1.z)
+            if abs(abs(t1*a1.m-s1*a2.m) - abs(point2.x - point1.x)) < self.accuracy \
+                    and abs(abs(t1*a1.n-s1*a2.n) - abs(point1.y - point2.y)) < self.accuracy \
+                    and abs(abs(t1*a1.k-s1*a2.k) - abs(point1.z - point2.z)) < self.accuracy:
+                return Point(t1 * a1.m + point1.x, t1 * a1.n + point1.y, t1 * a1.k + point1.z)
         elif abs(A1)<self.accuracy and abs(A2)>self.accuracy and abs(A3)<self.accuracy:
             t2 = self.det2x2(-(point1.x - point2.x), -a2.m, -(point1.z - point2.z), -a2.k) / A2
             s2 = self.det2x2(a1.m, -(point1.x - point2.x), a1.k, -(point1.z - point2.z)) / A2
-            if abs(abs(point1.x - point2.x) - abs(point1.y - point2.y)) < self.accuracy \
-                    and abs(abs(point1.x - point2.x) - abs(point1.z - point2.z)) < self.accuracy:
+            if abs(abs(t2 * a1.m - s2 * a2.m) - abs(point2.x - point1.x)) < self.accuracy \
+                    and abs(abs(t2 * a1.n - s2 * a2.n) - abs(point1.y - point2.y)) < self.accuracy \
+                    and abs(abs(t2 * a1.k - s2 * a2.k) - abs(point1.z - point2.z)) < self.accuracy:
                 return Point(t2 * a1.m + point1.x, t2 * a1.n + point1.y, t2 * a1.k + point1.z)
         elif abs(A1)<self.accuracy and abs(A2)<self.accuracy and abs(A3)>self.accuracy:
             t3 = self.det2x2(-(point1.y - point2.y), -a2.n, -(point1.z - point2.z), -a2.k) / A3
             s3 = self.det2x2(a1.n, -(point1.y - point2.y), a1.k, -(point1.z - point2.z)) / A3
-            if abs(abs(point1.x - point2.x) - abs(point1.y - point2.y)) < self.accuracy \
-                    and abs(abs(point1.x - point2.x) - abs(point1.z - point2.z)) < self.accuracy:
+            if abs(abs(t3 * a1.m - s3 * a2.m) - abs(point2.x - point1.x)) < self.accuracy \
+                    and abs(abs(t3 * a1.n - s3 * a2.n) - abs(point1.y - point2.y)) < self.accuracy \
+                    and abs(abs(t3 * a1.k - s3 * a2.k) - abs(point1.z - point2.z)) < self.accuracy:
                 return Point(t3 * a1.m + point1.x, t3 * a1.n + point1.y, t3 * a1.k + point1.z)
-        # else:
-        #     if abs(a1.m)>self.accuracy:
-        #         t1 = (point2.x-point1.x)/a1.m
-        #         if abs(a1.n*t1+point1.y-point2.y)<self.accuracy and abs(a1.k*t1+point1.z-point2.z)<self.accuracy:
-        #             return Point(t1 * a1.m + point1.x, t1 * a1.n + point1.y, t1 * a1.k + point1.z)
-        #     if abs(a2.m)>self.accuracy:
-        #         s1 = (point1.x-point2.x)/a2.m
-        #         if abs(-a2.n*s1+point1.y-point2.y)<self.accuracy and abs(-a2.k*s1+point1.z-point2.x)<self.accuracy:
-        #             return Point(s1 * a2.m + point2.x, s1 * a2.n + point2.y, s1 * a2.k + point2.z)
-        #     if abs(a1.n)>self.accuracy:
-        #         t2 = (point2.y-point1.y)/a1.n
-        #         if abs(point1.x-point2.x)<self.accuracy and abs(a1.k*t2+point1.z-point2.z)<self.accuracy:
-        #             return Point(t2 * a1.m + point1.x, t2 * a1.n + point1.y, t2 * a1.k + point1.z)
-        #     if abs(a2.n)>self.accuracy:
-        #         s2 = (point1.y-point2.y)/a2.n
-        #         if abs(point1.x-point2.x)<self.accuracy and abs(-a2.k*s2+point1.z-point2.z)<self.accuracy:
-        #             return Point(s2 * a2.m + point2.x, s2 * a2.n + point2.y, s2 * a2.k + point2.z)
-        #     if abs(a1.k)>self.accuracy:
-        #         t3 = (point2.z-point1.z)/a1.k
-        #         if abs(point1.x-point2.x)<self.accuracy and abs(point1.y-point2.y)<self.accuracy:
-        #             return Point(t2 * a1.m + point1.x, t2 * a1.n + point1.y, t2 * a1.k + point1.z)
-        #     if abs(a2.k)>self.accuracy:
-        #         s3 = (point1.z - point2.z) / a2.k
-        #         if abs(point1.x-point2.x)<self.accuracy and abs(point1.y-point2.y)<self.accuracy:
-        #             return Point(s3 * a2.m + point2.x, s3 * a2.n + point2.y, s3 * a2.k + point2.z)
-        #     if abs(point1.x-point2.x)<self.accuracy and abs(point1.y-point2.y)<self.accuracy and abs(point1.z-point2.z)<self.accuracy:
-        #         return point2
         return None
 
     def getDistanceBetweenTwoPoints(self, point1: Point, point2: Point):
