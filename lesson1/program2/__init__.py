@@ -158,8 +158,6 @@ def start(list1, list2):
                 a = points[minIndex]
                 points[minIndex] = points[i]
                 points[i] = a
-            for i in range(len(points)):
-                print(points[i].x, points[i].y, points[i].z)
             for i in range(len(points) - 1):
                 point3 = points[i]
                 point4 = points[i + 1]
@@ -214,7 +212,7 @@ if __name__ == "__main__":
     # list2 = [(0, -1, 0), (0, 3, 0), (7, -1, 0)]
     # start(list1, list2)
     # drawTriangle(list1, list2)
-    # must intersect!!! fail in sort of distances
+    # must intersect!!! rewrite solution system of equations
     list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
     list2 = [(1, 2, 0), (1, 1, -3), (1/2, 2, -2)]
     start(list1, list2)
