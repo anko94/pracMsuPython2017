@@ -5,7 +5,6 @@ from lesson4.program1.scalebutton import ScaleButton
 from lesson4.program1.tabs import Tabs
 
 if __name__ == "__main__":
-
     root = tkinter.Tk()
 
     mo = MatplotlibObject(root)

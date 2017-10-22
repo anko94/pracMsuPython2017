@@ -2,6 +2,8 @@ from tkinter import ttk
 import tkinter
 from tkinter.colorchooser import *
 import xml.etree.cElementTree as et
+import scipy.integrate
+import numpy as np
 
 
 class Tabs:
@@ -82,6 +84,51 @@ class Tabs:
         self.w.set(slider)
         self.mo.loadFromXml((xlim, xmax, ylim, ymax), circleList)
 
+    def verlet(self):
+        print("verlet")
+
+    def scipySolve(self, init, x):
+        G = 6.674
+        n = self.nPoints
+        m = self.m
+        r0 = []
+        for i in range(n):
+            r0.append(init[i])
+        v0 = []
+        for i in range(n):
+            v0.append(init[i + n])
+        result = []
+        for i in range(n):
+            result.append(v0[i])
+            sum = 0
+            for k in range(n-1):
+                if k != i:
+                    sum += G * m[k] * (r0[k] - r0[i])/abs((r0[k] - r0[i])**3)
+            result.append(sum)
+        return result
+
+
+    def scipy(self):
+        # for example: m1, m2, m3, r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
+        self.nPoints = 3
+        self.m = [1, 1, 1]
+        init = 1, 1, 1, 1, 2, 3
+        t = np.linspace(0, 3, 300)
+        result = scipy.integrate.odeint(self.scipySolve, init, t)
+        print(result)
+
+    def verletThreading(self):
+        print("verlet-threading")
+
+    def verletMultipricessing(self):
+        print("verlet-multiprocessing")
+
+    def verletCython(self):
+        print("verlet-cython")
+
+    def verletOpencl(self):
+        print("verlet-opencl")
+
     def __init__(self, root, mo):
         style = ttk.Style()
         self.mo = mo
@@ -130,12 +177,19 @@ class Tabs:
             ("verlet-cython", "5"),
             ("verlet-opencl", "6")
         ]
+        options = {1: self.scipy,
+                   2: self.verlet,
+                   3: self.verletThreading,
+                   4: self.verletMultipricessing,
+                   5: self.verletCython,
+                   6: self.verletOpencl,
+        }
         v = tkinter.StringVar()
         v.set("L")  # initialize
         for text, mode in MODES:
             def command(mode=mode, text=text):
                 self.chooseRadiobutton = mode
-                print(text, self.chooseRadiobutton)
+                options[int(mode)]()
             b = tkinter.Radiobutton(page2, text=text,
                             variable=v, value=mode, command=command)
             b.pack(anchor=tkinter.W)
