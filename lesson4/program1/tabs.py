@@ -85,12 +85,42 @@ class Tabs:
         self.mo.loadFromXml((xlim, xmax, ylim, ymax), circleList)
 
     def verlet(self):
-        print("verlet")
-
-    def scipySolve(self, init, x):
+        #for example: r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
+        init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))),
+                    list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
+        m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
+        n = int(self.text4.get(1.0, tkinter.END))
         G = 6.674
-        n = self.nPoints
-        m = self.m
+        t = np.linspace(0, 3, 300)
+        dt = 3.0/300
+        r = []
+        for i in range(n):
+            r.append(init[i])
+        v = []
+        for i in range(n):
+            v.append(init[i+n])
+        am = []
+        for i in range(n):
+            a = 0
+            for f in range(n):
+                if f!=i:
+                    a+=m[f]*G*(r[f]-r[i])/abs(r[f]-r[i])**3
+            am.append(a)
+        for i in range(len(t)):
+            if i != 0:
+                for j in range(n):
+                    a = 0
+                    for f in range(n):
+                        if f != j:
+                            a += m[f]*G*(r[(i-1)*n+f]-r[(i-1)*n+j])/abs(r[(i-1)*n+f]-r[(i-1)*n+j])**3
+                    am.append(a)
+                    r.append(r[(i-1)*n+j] + v[(i-1)*n+j]*dt + 1.0/2*am[(i-1)*n+j]*(dt)**2)
+                    v.append(v[(k - 1) * n + j] + 1.0 / 2 * dt * (a + am[(i-1)*n+j]))
+        print(len(r),r)
+        print(len(v),v)
+
+    def scipySolve(self, init, x, n, m):
+        G = 6.674
         r0 = []
         for i in range(n):
             r0.append(init[i])
@@ -110,11 +140,12 @@ class Tabs:
 
     def scipy(self):
         # for example: m1, m2, m3, r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
-        self.nPoints = 3
-        self.m = [1, 1, 1]
-        init = 1, 1, 1, 1, 2, 3
+        init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))), list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
         t = np.linspace(0, 3, 300)
-        result = scipy.integrate.odeint(self.scipySolve, init, t)
+        result = scipy.integrate.odeint(self.scipySolve, init, t, args=(int(self.text4.get(1.0, tkinter.END)),
+                                                                        list(map(float,
+                                                                                 self.text5.get(1.0, tkinter.END).split(
+                                                                                     " ")))))
         print(result)
 
     def verletThreading(self):
@@ -193,6 +224,15 @@ class Tabs:
             b = tkinter.Radiobutton(page2, text=text,
                             variable=v, value=mode, command=command)
             b.pack(anchor=tkinter.W)
+
+        self.text4 = tkinter.Text(page2, height=1, width=20)
+        self.text4.pack()
+        self.text5 = tkinter.Text(page2, height=1, width=20)
+        self.text5.pack()
+        self.text6 = tkinter.Text(page2, height=1, width=20)
+        self.text6.pack()
+        self.text7 = tkinter.Text(page2, height=1, width=20)
+        self.text7.pack()
 
         # xml-file
         page3 = ttk.Frame(nb)
