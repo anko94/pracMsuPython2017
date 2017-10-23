@@ -4,6 +4,7 @@ from tkinter.colorchooser import *
 import xml.etree.cElementTree as et
 import scipy.integrate
 import numpy as np
+import threading
 
 
 class Tabs:
@@ -100,24 +101,27 @@ class Tabs:
         for i in range(n):
             v.append(init[i+n])
         am = []
-        for i in range(n):
+        for j in range(n):
             a = 0
             for f in range(n):
-                if f!=i:
-                    a+=m[f]*G*(r[f]-r[i])/abs(r[f]-r[i])**3
+                if f != j:
+                    a += m[f] * G * (r[f] - r[j]) / abs(r[f] - r[j]) ** 3
             am.append(a)
         for i in range(len(t)):
             if i != 0:
                 for j in range(n):
+                    r.append(r[(i-1)*n+j] + v[(i-1)*n+j]*dt + 1.0/2*am[(i-1)*n+j]*dt**2)
+                for j in range(n):
                     a = 0
                     for f in range(n):
                         if f != j:
-                            a += m[f]*G*(r[(i-1)*n+f]-r[(i-1)*n+j])/abs(r[(i-1)*n+f]-r[(i-1)*n+j])**3
+                            a += m[f] * G * (r[i * n + f] - r[i * n + j]) / abs(
+                                r[i * n + f] - r[i * n + j]) ** 3
                     am.append(a)
-                    r.append(r[(i-1)*n+j] + v[(i-1)*n+j]*dt + 1.0/2*am[(i-1)*n+j]*(dt)**2)
-                    v.append(v[(k - 1) * n + j] + 1.0 / 2 * dt * (a + am[(i-1)*n+j]))
-        print(len(r),r)
-        print(len(v),v)
+                    v.append(v[(i - 1) * n + j] + 1.0 / 2 * dt * (am[i * n + j] + am[(i - 1) * n + j]))
+        print(len(r), r)
+        print(len(v), v)
+        print(len(am), am)
 
     def scipySolve(self, init, x, n, m):
         G = 6.674
@@ -148,8 +152,58 @@ class Tabs:
                                                                                      " ")))))
         print(result)
 
+    class myThread(threading.Thread):
+        def __init__(self, n, j, m, G, r):
+            threading.Thread.__init__(self)
+            self.n = n
+            self.j = j
+            self.m = m
+            self.G = G
+            self.r = r
+
+        def run(self):
+            a = 0
+            for f in range(self.n):
+                if f != self.j:
+                    a += self.m[f] * self.G * (self.r[f] - self.r[self.j]) / abs(self.r[f] - self.r[self.j]) ** 3
+
     def verletThreading(self):
-        print("verlet-threading")
+        # for example: r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
+        init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))),
+                    list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
+        m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
+        n = int(self.text4.get(1.0, tkinter.END))
+        G = 6.674
+        t = np.linspace(0, 3, 300)
+        dt = 3.0 / 300
+        r = []
+        for i in range(n):
+            r.append(init[i])
+        v = []
+        for i in range(n):
+            v.append(init[i + n])
+        am = []
+        for j in range(n):
+            a = 0
+            for f in range(n):
+                if f != j:
+                    a += m[f] * G * (r[f] - r[j]) / abs(r[f] - r[j]) ** 3
+            am.append(a)
+        for i in range(len(t)):
+            if i != 0:
+                for j in range(n):
+                    r.append(r[(i - 1) * n + j] + v[(i - 1) * n + j] * dt + 1.0 / 2 * am[(i - 1) * n + j] * dt ** 2)
+                for j in range(n):
+                    a = 0
+                    for f in range(n):
+                        if f != j:
+                            a += m[f] * G * (r[i * n + f] - r[i * n + j]) / abs(
+                                r[i * n + f] - r[i * n + j]) ** 3
+                    am.append(a)
+                    v.append(v[(i - 1) * n + j] + 1.0 / 2 * dt * (am[i * n + j] + am[(i - 1) * n + j]))
+        print(len(r), r)
+        print(len(v), v)
+        print(len(am), am)
 
     def verletMultipricessing(self):
         print("verlet-multiprocessing")
