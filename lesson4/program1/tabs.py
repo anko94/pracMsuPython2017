@@ -152,20 +152,22 @@ class Tabs:
                                                                                      " ")))))
         print(result)
 
-    class myThread(threading.Thread):
-        def __init__(self, n, j, m, G, r):
+    class MyThread(threading.Thread):
+        def __init__(self, n, j, m, G, r,am):
             threading.Thread.__init__(self)
             self.n = n
             self.j = j
             self.m = m
             self.G = G
             self.r = r
+            self.am = am
 
         def run(self):
             a = 0
             for f in range(self.n):
                 if f != self.j:
                     a += self.m[f] * self.G * (self.r[f] - self.r[self.j]) / abs(self.r[f] - self.r[self.j]) ** 3
+            self.am.insert(self.j, a)
 
     def verletThreading(self):
         # for example: r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
@@ -182,13 +184,15 @@ class Tabs:
         v = []
         for i in range(n):
             v.append(init[i + n])
-        am = []
+        am = [] * n
+        threads = []
         for j in range(n):
-            a = 0
-            for f in range(n):
-                if f != j:
-                    a += m[f] * G * (r[f] - r[j]) / abs(r[f] - r[j]) ** 3
-            am.append(a)
+            thread = self.MyThread(n, j, m, G, r, am)
+            thread.start()
+            threads.append(thread)
+        for t in threads:
+            t.join()
+
         for i in range(len(t)):
             if i != 0:
                 for j in range(n):
