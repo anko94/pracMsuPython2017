@@ -28,6 +28,7 @@ if __name__ == "__main__":
     else:
         threads = []
         k = 0
+        f = 0
         for i in range(len(B)):
             A1 = A[i]
             if k >= len(B[0]):

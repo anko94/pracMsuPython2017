@@ -178,13 +178,13 @@ class Tabs:
         G = 6.674
         t = np.linspace(0, 3, 300)
         dt = 3.0 / 300
-        r = []
+        r = [] * n * 300
         for i in range(n):
             r.append(init[i])
-        v = []
+        v = [] * n * 300
         for i in range(n):
             v.append(init[i + n])
-        am = [] * n
+        am = [] * n * 300
         threads = []
         for j in range(n):
             thread = self.MyThread(n, j, m, G, r, am)
@@ -192,7 +192,6 @@ class Tabs:
             threads.append(thread)
         for t in threads:
             t.join()
-
         for i in range(len(t)):
             if i != 0:
                 for j in range(n):
