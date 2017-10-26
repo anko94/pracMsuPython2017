@@ -196,39 +196,43 @@ def drawTriangle(list1, list2):
     plt.show()
 
 if __name__ == "__main__":
+    # list1 = [(0, 0, 0), (0, 5, 0), (6, 5, 0)]
+    # list2 = [(1, 4, 0), (2, 4, 0), (2, 3, 0)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
+    # list1 = [(-1, 0, 0), (0, -1, 0), (0, 0, 0)]
+    # list2 = [(0, 0, 0), (0, 3, 0), (5, 0, 0)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
+    # list1 = [(-1, 0, 0), (0, 2, 0), (0, 0, 0)]
+    # list2 = [(0, 0, 0), (5, 0, 0), (0, 4, 0)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
+    # list1 = [(0, 0, 0), (0, 2, 0), (1, 0, 0)]
+    # list2 = [(0, -1, 0), (0, 3, 0), (7, -1, 0)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
+    # list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
+    # list2 = [(1, 2, 0), (1, 1, -3), (1/2, 2, -2)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
+    # list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
+    # list2 = [(4, 0, 0), (1, 1, -3), (1/2, 2, -2)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
+    # list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
+    # list2 = [(1, 2, 0), (2, 1, 0), (1/2, 2, -2)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
+    # list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
+    # list2 = [(-1, 2, 2), (0, 2, 2), (0, 0, -2)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
+    # list1 = [(0, 0, 0), (0, 4, 0), (5, 0, 0)]
+    # list2 = [(1, 1, 2), (5, 6, -2), (3, -4, -1)]
+    # start(list1, list2)
+    # drawTriangle(list1, list2)
     list1 = [(0, 0, 0), (0, 5, 0), (6, 5, 0)]
-    list2 = [(1, 4, 0), (2, 4, 0), (2, 3, 0)]
-    start(list1, list2)
-    drawTriangle(list1, list2)
-    list1 = [(-1, 0, 0), (0, -1, 0), (0, 0, 0)]
-    list2 = [(0, 0, 0), (0, 3, 0), (5, 0, 0)]
-    start(list1, list2)
-    drawTriangle(list1, list2)
-    list1 = [(-1, 0, 0), (0, 2, 0), (0, 0, 0)]
-    list2 = [(0, 0, 0), (5, 0, 0), (0, 4, 0)]
-    start(list1, list2)
-    drawTriangle(list1, list2)
-    list1 = [(0, 0, 0), (0, 2, 0), (1, 0, 0)]
-    list2 = [(0, -1, 0), (0, 3, 0), (7, -1, 0)]
-    start(list1, list2)
-    drawTriangle(list1, list2)
-    list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
-    list2 = [(1, 2, 0), (1, 1, -3), (1/2, 2, -2)]
-    start(list1, list2)
-    drawTriangle(list1, list2)
-    list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
-    list2 = [(4, 0, 0), (1, 1, -3), (1/2, 2, -2)]
-    start(list1, list2)
-    drawTriangle(list1, list2)
-    list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
-    list2 = [(1, 2, 0), (2, 1, 0), (1/2, 2, -2)]
-    start(list1, list2)
-    drawTriangle(list1, list2)
-    list1 = [(0, 0, 0), (0, 4, 0), (4, 0, 0)]
-    list2 = [(-1, 2, 2), (0, 2, 2), (0, 0, -2)]
-    start(list1, list2)
-    drawTriangle(list1, list2)
-    list1 = [(0, 0, 0), (0, 4, 0), (5, 0, 0)]
-    list2 = [(1, 1, 2), (5, 6, -2), (3, -4, -1)]
+    list2 = [(-1, -4, -1), (-2, -4, -2), (-2, -3, -2)]
     start(list1, list2)
     drawTriangle(list1, list2)

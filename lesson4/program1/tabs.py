@@ -169,6 +169,44 @@ class Tabs:
                     a += self.m[f] * self.G * (self.r[f] - self.r[self.j]) / abs(self.r[f] - self.r[self.j]) ** 3
             self.am.insert(self.j, a)
 
+    class MyThread2(threading.Thread):
+        def __init__(self, n, i, j, dt, G, r, v, am):
+            threading.Thread.__init__(self)
+            self.n = n
+            self.i = i
+            self.j = j
+            self.dt = dt
+            self.G = G
+            self.v = v
+            self.r = r
+            self.am = am
+
+        def run(self):
+            self.r.insert(self.i * self.n + self.j, self.r[(self.i - 1) * self.n + self.j] +
+                          self.v[(self.i - 1) * self.n + self.j] * self.dt + 1.0 / 2 * self.am[(self.i - 1) * self.n + self.j] * self.dt ** 2)
+
+    class MyThread3(threading.Thread):
+        def __init__(self, n, i, j, dt, G, r, v, m, am):
+            threading.Thread.__init__(self)
+            self.n = n
+            self.i = i
+            self.j = j
+            self.dt = dt
+            self.G = G
+            self.v = v
+            self.r = r
+            self.m = m
+            self.am = am
+
+        def run(self):
+            a = 0
+            for f in range(self.n):
+                if f != self.j:
+                    a += self.m[f] * self.G * (self.r[self.i * self.n + f] - self.r[self.i * self.n + self.j]) / abs(
+                        self.r[self.i * self.n + f] - self.r[self.i * self.n + self.j]) ** 3
+            self.am.insert(self.i * self.n + self.j, a)
+            self.v.append(self.v[(self.i - 1) * self.n + self.j] + 1.0 / 2 * self.dt * (self.am[self.i * self.n + self.j] + self.am[(self.i - 1) * self.n + self.j]))
+
     def verletThreading(self):
         # for example: r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
         init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))),
@@ -190,20 +228,24 @@ class Tabs:
             thread = self.MyThread(n, j, m, G, r, am)
             thread.start()
             threads.append(thread)
-        for t in threads:
-            t.join()
+        for thr in threads:
+            thr.join()
         for i in range(len(t)):
             if i != 0:
+                threads = []
                 for j in range(n):
-                    r.append(r[(i - 1) * n + j] + v[(i - 1) * n + j] * dt + 1.0 / 2 * am[(i - 1) * n + j] * dt ** 2)
+                    thread = self.MyThread2(n, i, j, dt, G, r, v, am)
+                    threads.append(thread)
+                    thread.start()
+                for thr in threads:
+                    thr.join()
+                threads = []
                 for j in range(n):
-                    a = 0
-                    for f in range(n):
-                        if f != j:
-                            a += m[f] * G * (r[i * n + f] - r[i * n + j]) / abs(
-                                r[i * n + f] - r[i * n + j]) ** 3
-                    am.append(a)
-                    v.append(v[(i - 1) * n + j] + 1.0 / 2 * dt * (am[i * n + j] + am[(i - 1) * n + j]))
+                    thread = self.MyThread3(n, i, j, dt, G, r, v, m, am)
+                    threads.append(thread)
+                    thread.start()
+                for thr in threads:
+                    thr.join()
         print(len(r), r)
         print(len(v), v)
         print(len(am), am)
