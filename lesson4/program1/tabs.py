@@ -92,8 +92,8 @@ class Tabs:
         m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
         n = int(self.text4.get(1.0, tkinter.END))
         G = 6.674
-        t = np.linspace(0, 3, 300)
-        dt = 3.0/300
+        t = np.linspace(0, 20, 20)
+        dt = 20/20
         x = []
         y = []
         for i in range(n):
@@ -111,8 +111,14 @@ class Tabs:
             ay = 0
             for f in range(n):
                 if f != j:
-                    ax += m[f] * G * (x[f] - x[j]) / abs(x[f] - x[j]) ** 3
-                    ay += m[f] * G * (y[f] - y[j]) / abs(y[f] - y[j]) ** 3
+                    if x[f] != x[j]:
+                        ax += m[f] * G * (x[f] - x[j]) / abs(x[f] - x[j]) ** 3
+                    else:
+                        ax += 0
+                    if y[f] != y[j]:
+                        ay += m[f] * G * (y[f] - y[j]) / abs(y[f] - y[j]) ** 3
+                    else:
+                        ay += 0
             axm.append(ax)
             aym.append(ay)
         for i in range(len(t)):
@@ -125,10 +131,16 @@ class Tabs:
                     ay = 0
                     for f in range(n):
                         if f != j:
-                            ax += m[f] * G * (x[i * n + f] - x[i * n + j]) / abs(
-                                x[i * n + f] - x[i * n + j]) ** 3
-                            ay += m[f] * G * (y[i * n + f] - y[i * n + j]) / abs(
-                                y[i * n + f] - y[i * n + j]) ** 3
+                            if x[i * n + f] != x[i * n + j]:
+                                ax += m[f] * G * (x[i * n + f] - x[i * n + j]) / abs(
+                                    x[i * n + f] - x[i * n + j]) ** 3
+                            else:
+                                ax += 0
+                            if y[i * n + f] != y[i * n + j]:
+                                ay += m[f] * G * (y[i * n + f] - y[i * n + j]) / abs(
+                                    y[i * n + f] - y[i * n + j]) ** 3
+                            else:
+                                ay += 0
                     axm.append(ax)
                     aym.append(ay)
                     vx.append(vx[(i - 1) * n + j] + 1.0 / 2 * dt * (axm[i * n + j] + axm[(i - 1) * n + j]))
@@ -139,6 +151,15 @@ class Tabs:
         print(len(vy), vy)
         print(len(axm), axm)
         print(len(aym), aym)
+        self.drawCircles(x, y, n)
+
+    def drawCircles(self, x, y, n):
+        c = 1/(n*2)
+        for i in range(int(len(x)/n)):
+            color = 0
+            for j in range(n):
+                color += c
+                self.mo.drawCircle((x[i*n+j], y[i*n+j]), 1, (color,color,color))
 
     def scipySolve(self, init, x, n, m):
         G = 6.674
@@ -170,12 +191,18 @@ class Tabs:
     def scipy(self):
         # for example: m1, m2, m3, x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))), list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
-        t = np.linspace(0, 3, 300)
-        result = scipy.integrate.odeint(self.scipySolve, init, t, args=(int(self.text4.get(1.0, tkinter.END)),
+        t = np.linspace(0, 3, 100)
+        n = int(self.text4.get(1.0, tkinter.END))
+        result = scipy.integrate.odeint(self.scipySolve, init, t, args=(n,
                                                                         list(map(float,
-                                                                                 self.text5.get(1.0, tkinter.END).split(
-                                                                                     " ")))))
-        print(result)
+                                                                                 self.text5.get(1.0, tkinter.END).split(" ")))))
+        x = []
+        y = []
+        for i in range(len(result)):
+            for j in range(n):
+                x.append(result[i][j*2])
+                y.append(result[i][j * 2 + 1])
+        self.drawCircles(x, y, n)
 
     class MyThread(threading.Thread):
         def __init__(self, n, j, m, G, x, axm, y, aym):
@@ -258,20 +285,20 @@ class Tabs:
         m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
         n = int(self.text4.get(1.0, tkinter.END))
         G = 6.674
-        t = np.linspace(0, 3, 300)
-        dt = 3.0 / 300
-        x = [] * n * 300
-        y = [] * n * 300
+        t = np.linspace(0, 3, 100)
+        dt = 3.0 / 100
+        x = [] * n * 100
+        y = [] * n * 100
         for i in range(n):
             x.append(init[i*2])
             y.append(init[i*2+1])
-        vx = [] * n * 300
-        vy = [] * n * 300
+        vx = [] * n * 100
+        vy = [] * n * 100
         for i in range(n):
             vx.append(init[i*2 + 2*n])
             vy.append(init[i * 2 + 1 + 2 * n])
-        axm = [] * n * 300
-        aym = [] * n * 300
+        axm = [] * n * 100
+        aym = [] * n * 100
         threads = []
         for j in range(n):
             thread = self.MyThread(n, j, m, G, x, axm, y, aym)
@@ -301,6 +328,7 @@ class Tabs:
         print(len(vy), vy)
         print(len(axm), axm)
         print(len(aym), aym)
+        self.drawCircles(x, y, n)
 
     def verletMultipricessing(self):
         print("verlet-multiprocessing")

@@ -27,7 +27,6 @@ class MatplotlibObject():
             self.drawCircle(circleList[i][0], circleList[i][1], circleList[i][2])
         self.canvas.show()
 
-
     def scaleAxes(self, scale):
         xlim = self.axes.get_xlim()
         ylim = self.axes.get_ylim()

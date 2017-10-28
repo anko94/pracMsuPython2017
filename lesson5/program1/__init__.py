@@ -16,8 +16,9 @@ class MyThread(threading.Thread):
             a += self.A[j]*self.B[j]
         self.C[self.i][self.k] = a
 
+
 if __name__ == "__main__":
-    A = [[1, 2, 3, 5], [3, 3, 4, 5], [1, 2 ,1, 5], [3, 4, 5, 3]]
+    A = [[1, 2, 3, 5], [3, 3, 4, 5], [1, 2, 1, 5], [3, 4, 5, 3]]
     B = [[1, 1], [3, 3], [4, 4], [3, 4]]
     C = []
     for i in range(len(A)):
@@ -27,19 +28,15 @@ if __name__ == "__main__":
         print("wrong matrices")
     else:
         threads = []
-        k = 0
-        f = 0
-        for i in range(len(B)):
+        for i in range(len(A)):
             A1 = A[i]
-            if k >= len(B[0]):
-                k = 0
-            B1 = []
-            for j in range(len(B)):
-                B1.append(B[j][k])
-            thread = MyThread(A1, B1, i, k, C)
-            threads.append(thread)
-            thread.start()
-            k += 1
+            for j in range(len(B[0])):
+                B1 = []
+                for k in range(len(B)):
+                    B1.append(B[k][j])
+                thread = MyThread(A1, B1, i, j, C)
+                threads.append(thread)
+                thread.start()
         for t in threads:
             t.join()
         print(C)
