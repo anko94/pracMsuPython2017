@@ -86,7 +86,7 @@ class Tabs:
         self.mo.loadFromXml((xlim, xmax, ylim, ymax), circleList)
 
     def verlet(self):
-        #for example: r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
+        #for example: x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))),
                     list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
         m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
@@ -94,56 +94,81 @@ class Tabs:
         G = 6.674
         t = np.linspace(0, 3, 300)
         dt = 3.0/300
-        r = []
+        x = []
+        y = []
         for i in range(n):
-            r.append(init[i])
-        v = []
+            x.append(init[i*2])
+            y.append(init[i*2+1])
+        vx = []
+        vy = []
         for i in range(n):
-            v.append(init[i+n])
-        am = []
+            vx.append(init[i*2+2*n])
+            vy.append(init[i*2+1+2*n])
+        axm = []
+        aym = []
         for j in range(n):
-            a = 0
+            ax = 0
+            ay = 0
             for f in range(n):
                 if f != j:
-                    a += m[f] * G * (r[f] - r[j]) / abs(r[f] - r[j]) ** 3
-            am.append(a)
+                    ax += m[f] * G * (x[f] - x[j]) / abs(x[f] - x[j]) ** 3
+                    ay += m[f] * G * (y[f] - y[j]) / abs(y[f] - y[j]) ** 3
+            axm.append(ax)
+            aym.append(ay)
         for i in range(len(t)):
             if i != 0:
                 for j in range(n):
-                    r.append(r[(i-1)*n+j] + v[(i-1)*n+j]*dt + 1.0/2*am[(i-1)*n+j]*dt**2)
+                    x.append(x[(i-1)*n+j] + vx[(i-1)*n+j]*dt + 1.0/2*axm[(i-1)*n+j]*dt**2)
+                    y.append(y[(i - 1) * n + j] + vy[(i - 1) * n + j] * dt + 1.0 / 2 * aym[(i - 1) * n + j] * dt ** 2)
                 for j in range(n):
-                    a = 0
+                    ax = 0
+                    ay = 0
                     for f in range(n):
                         if f != j:
-                            a += m[f] * G * (r[i * n + f] - r[i * n + j]) / abs(
-                                r[i * n + f] - r[i * n + j]) ** 3
-                    am.append(a)
-                    v.append(v[(i - 1) * n + j] + 1.0 / 2 * dt * (am[i * n + j] + am[(i - 1) * n + j]))
-        print(len(r), r)
-        print(len(v), v)
-        print(len(am), am)
+                            ax += m[f] * G * (x[i * n + f] - x[i * n + j]) / abs(
+                                x[i * n + f] - x[i * n + j]) ** 3
+                            ay += m[f] * G * (y[i * n + f] - y[i * n + j]) / abs(
+                                y[i * n + f] - y[i * n + j]) ** 3
+                    axm.append(ax)
+                    aym.append(ay)
+                    vx.append(vx[(i - 1) * n + j] + 1.0 / 2 * dt * (axm[i * n + j] + axm[(i - 1) * n + j]))
+                    vy.append(vy[(i - 1) * n + j] + 1.0 / 2 * dt * (aym[i * n + j] + aym[(i - 1) * n + j]))
+        print(len(x), x)
+        print(len(y), y)
+        print(len(vx), vx)
+        print(len(vy), vy)
+        print(len(axm), axm)
+        print(len(aym), aym)
 
     def scipySolve(self, init, x, n, m):
         G = 6.674
-        r0 = []
+        x0 = []
+        y0 = []
         for i in range(n):
-            r0.append(init[i])
-        v0 = []
+            x0.append(init[i*2])
+            y0.append(init[i * 2 + 1])
+        vx0 = []
+        vy0 = []
         for i in range(n):
-            v0.append(init[i + n])
+            vx0.append(init[i*2 + n])
+            vy0.append(init[i * 2 + 1 + n])
         result = []
         for i in range(n):
-            result.append(v0[i])
-            sum = 0
+            result.append(vx0[i])
+            result.append(vy0[i])
+            sumx = 0
+            sumy = 0
             for k in range(n-1):
                 if k != i:
-                    sum += G * m[k] * (r0[k] - r0[i])/abs((r0[k] - r0[i])**3)
-            result.append(sum)
+                    sumx += G * m[k] * (x0[k] - x0[i])/abs((x0[k] - x0[i])**3)
+                    sumy += G * m[k] * (y0[k] - y0[i]) / abs((y0[k] - y0[i]) ** 3)
+            result.append(sumx)
+            result.append(sumy)
         return result
 
 
     def scipy(self):
-        # for example: m1, m2, m3, r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
+        # for example: m1, m2, m3, x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))), list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
         t = np.linspace(0, 3, 300)
         result = scipy.integrate.odeint(self.scipySolve, init, t, args=(int(self.text4.get(1.0, tkinter.END)),
@@ -153,62 +178,81 @@ class Tabs:
         print(result)
 
     class MyThread(threading.Thread):
-        def __init__(self, n, j, m, G, r,am):
+        def __init__(self, n, j, m, G, x, axm, y, aym):
             threading.Thread.__init__(self)
             self.n = n
             self.j = j
             self.m = m
             self.G = G
-            self.r = r
-            self.am = am
+            self.x = x
+            self.axm = axm
+            self.y = y
+            self.aym = aym
 
         def run(self):
-            a = 0
+            ax = 0
+            ay = 0
             for f in range(self.n):
                 if f != self.j:
-                    a += self.m[f] * self.G * (self.r[f] - self.r[self.j]) / abs(self.r[f] - self.r[self.j]) ** 3
-            self.am.insert(self.j, a)
+                    ax += self.m[f] * self.G * (self.x[f] - self.x[self.j]) / abs(self.x[f] - self.x[self.j]) ** 3
+                    ay += self.m[f] * self.G * (self.y[f] - self.y[self.j]) / abs(self.y[f] - self.y[self.j]) ** 3
+            self.axm.insert(self.j, ax)
+            self.aym.insert(self.j, ay)
 
     class MyThread2(threading.Thread):
-        def __init__(self, n, i, j, dt, G, r, v, am):
+        def __init__(self, n, i, j, dt, G, x, vx, axm, y, vy, aym):
             threading.Thread.__init__(self)
             self.n = n
             self.i = i
             self.j = j
             self.dt = dt
             self.G = G
-            self.v = v
-            self.r = r
-            self.am = am
+            self.vx = vx
+            self.x = x
+            self.axm = axm
+            self.vy = vy
+            self.y = y
+            self.aym = aym
 
         def run(self):
-            self.r.insert(self.i * self.n + self.j, self.r[(self.i - 1) * self.n + self.j] +
-                          self.v[(self.i - 1) * self.n + self.j] * self.dt + 1.0 / 2 * self.am[(self.i - 1) * self.n + self.j] * self.dt ** 2)
+            self.x.insert(self.i * self.n + self.j, self.x[(self.i - 1) * self.n + self.j] +
+                          self.vx[(self.i - 1) * self.n + self.j] * self.dt + 1.0 / 2 * self.axm[(self.i - 1) * self.n + self.j] * self.dt ** 2)
+            self.y.insert(self.i * self.n + self.j, self.y[(self.i - 1) * self.n + self.j] +
+                          self.vy[(self.i - 1) * self.n + self.j] * self.dt + 1.0 / 2 * self.aym[
+                              (self.i - 1) * self.n + self.j] * self.dt ** 2)
 
     class MyThread3(threading.Thread):
-        def __init__(self, n, i, j, dt, G, r, v, m, am):
+        def __init__(self, n, i, j, dt, G, x, vx, m, axm, y, vy, aym):
             threading.Thread.__init__(self)
             self.n = n
             self.i = i
             self.j = j
             self.dt = dt
             self.G = G
-            self.v = v
-            self.r = r
+            self.vx = vx
+            self.x = x
             self.m = m
-            self.am = am
+            self.axm = axm
+            self.y = y
+            self.vy = vy
+            self.aym = aym
 
         def run(self):
-            a = 0
+            ax = 0
+            ay = 0
             for f in range(self.n):
                 if f != self.j:
-                    a += self.m[f] * self.G * (self.r[self.i * self.n + f] - self.r[self.i * self.n + self.j]) / abs(
-                        self.r[self.i * self.n + f] - self.r[self.i * self.n + self.j]) ** 3
-            self.am.insert(self.i * self.n + self.j, a)
-            self.v.append(self.v[(self.i - 1) * self.n + self.j] + 1.0 / 2 * self.dt * (self.am[self.i * self.n + self.j] + self.am[(self.i - 1) * self.n + self.j]))
+                    ax += self.m[f] * self.G * (self.x[self.i * self.n + f] - self.x[self.i * self.n + self.j]) / abs(
+                        self.x[self.i * self.n + f] - self.x[self.i * self.n + self.j]) ** 3
+                    ay += self.m[f] * self.G * (self.y[self.i * self.n + f] - self.y[self.i * self.n + self.j]) / abs(
+                        self.y[self.i * self.n + f] - self.y[self.i * self.n + self.j]) ** 3
+            self.axm.insert(self.i * self.n + self.j, ax)
+            self.aym.insert(self.i * self.n + self.j, ay)
+            self.vx.append(self.vx[(self.i - 1) * self.n + self.j] + 1.0 / 2 * self.dt * (self.axm[self.i * self.n + self.j] + self.axm[(self.i - 1) * self.n + self.j]))
+            self.vy.append(self.vy[(self.i - 1) * self.n + self.j] + 1.0 / 2 * self.dt * (self.aym[self.i * self.n + self.j] + self.aym[(self.i - 1) * self.n + self.j]))
 
     def verletThreading(self):
-        # for example: r1(0), r2(0), r3(0), v1(0), v2(0), v3(0)
+        # for example: x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))),
                     list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
         m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
@@ -216,16 +260,21 @@ class Tabs:
         G = 6.674
         t = np.linspace(0, 3, 300)
         dt = 3.0 / 300
-        r = [] * n * 300
+        x = [] * n * 300
+        y = [] * n * 300
         for i in range(n):
-            r.append(init[i])
-        v = [] * n * 300
+            x.append(init[i*2])
+            y.append(init[i*2+1])
+        vx = [] * n * 300
+        vy = [] * n * 300
         for i in range(n):
-            v.append(init[i + n])
-        am = [] * n * 300
+            vx.append(init[i*2 + 2*n])
+            vy.append(init[i * 2 + 1 + 2 * n])
+        axm = [] * n * 300
+        aym = [] * n * 300
         threads = []
         for j in range(n):
-            thread = self.MyThread(n, j, m, G, r, am)
+            thread = self.MyThread(n, j, m, G, x, axm, y, aym)
             thread.start()
             threads.append(thread)
         for thr in threads:
@@ -234,21 +283,24 @@ class Tabs:
             if i != 0:
                 threads = []
                 for j in range(n):
-                    thread = self.MyThread2(n, i, j, dt, G, r, v, am)
+                    thread = self.MyThread2(n, i, j, dt, G, x, vx, axm, y, vy, aym)
                     threads.append(thread)
                     thread.start()
                 for thr in threads:
                     thr.join()
                 threads = []
                 for j in range(n):
-                    thread = self.MyThread3(n, i, j, dt, G, r, v, m, am)
+                    thread = self.MyThread3(n, i, j, dt, G, x, vx, m, axm, y, vy, aym)
                     threads.append(thread)
                     thread.start()
                 for thr in threads:
                     thr.join()
-        print(len(r), r)
-        print(len(v), v)
-        print(len(am), am)
+        print(len(x), x)
+        print(len(y), y)
+        print(len(vx), vx)
+        print(len(vy), vy)
+        print(len(axm), axm)
+        print(len(aym), aym)
 
     def verletMultipricessing(self):
         print("verlet-multiprocessing")
