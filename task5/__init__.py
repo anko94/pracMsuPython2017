@@ -13,11 +13,68 @@ def getXcYc(x, k1m, k3, k3m, k2, n):
         y[i] = (1 - x[i]) * alk
         z[i] = 1 - x[i] - y[i]
         k1[i] = (k1m*x[i]+k2*z[i]**2*x[i])/(z[i])
+
+    i = 0
+    DI = [0.0] * 1000
+    yh = []
+    xh = []
+    k1h = []
+    ysn = []
+    xsn = []
+    k1sn = []
+    ydi = []
+    xdi = []
+    k1di = []
+    k1[i] = (k1m * x[i] + k2 * z[i] ** 2 * x[i]) / (z[i])
+    a11 = -k1[i] - k1m - k2 * z[i] ** 2 + 2 * k2 * x[i] * z[i]
+    a12 = -k1[i] + 2 * k2 * x[i] * z[i]
+    a21 = -2 * k3 * z[i]
+    a22 = -2 * k3 * z[i] - 2 * k3m * y[i]
+    sp[i] = a11 + a22
+    det[i] = a11 * a22 - a12 * a21
+    DI[i] = sp[i] ** 2 - 4 * det[i]
+    for i in range(1, n):
+        k1[i] = (k1m * x[i] + k2 * z[i] ** 2 * x[i]) / (z[i])
+        a11 = -k1[i] - k1m - k2 * z[i] ** 2 + 2 * k2 * x[i] * z[i]
+        a12 = -k1[i] + 2 * k2 * x[i] * z[i]
+        a21 = -2 * k3 * z[i]
+        a22 = -2 * k3 * z[i] - 2 * k3m * y[i]
+        sp[i] = a11 + a22
+        det[i] = a11 * a22 - a12 * a21
+        DI[i] = sp[i] ** 2 - 4 * det[i]
+        if sp[i] * sp[i - 1] <= 0:
+            x1 = x[i-1] - sp[i-1]*(x[i]-x[i-1])/(sp[i]-sp[i-1])
+            y1 = (1-x1)*alk
+            k11 = (k1m * x1 + k2 * (1-x1-y1) ** 2 * x1) / (1-x1-y1)
+            yh.append(y1)
+            xh.append(x1)
+            k1h.append(k11)
+        if det[i] * det[i - 1] <= 0:
+            x1 = x[i - 1] - det[i - 1] * (x[i] - x[i - 1]) / (det[i] - det[i - 1])
+            y1 = (1 - x1) * alk
+            k11 = (k1m * x1 + k2 * (1 - x1 - y1) ** 2 * x1) / (1 - x1 - y1)
+            ysn.append(y1)
+            xsn.append(x1)
+            k1sn.append(k11)
+        if DI[i] * DI[i - 1] <= 0:
+            x1 = x[i - 1] - DI[i - 1] * (x[i] - x[i - 1]) / (DI[i] - DI[i - 1])
+            y1 = (1 - x1) * alk
+            k11 = (k1m * x1 + k2 * (1 - x1 - y1) ** 2 * x1) / (1 - x1 - y1)
+            ydi.append(y1)
+            xdi.append(x1)
+            k1di.append(k11)
+
     figure, axes = plt.subplots()
     plt.xlabel("k1")
     plt.ylabel("x,y")
     axes.plot(k1, x, 'r')
     axes.plot(k1, y, 'b')
+    for i in range(len(xh)):
+        axes.plot(k1h[i], xh[i], 'og')
+        axes.plot(k1h[i], yh[i], 'og')
+    for i in range(len(xsn)):
+        axes.plot(k1sn[i], xsn[i], 'oy')
+        axes.plot(k1sn[i], ysn[i], 'oy')
     plt.show()
 
 if __name__ == "__main__":
@@ -40,11 +97,11 @@ if __name__ == "__main__":
     Det = [0.0]*1000
 
     # #зависимость от k1 для неск. значений параметра k1m
-    # getXcYc(x, 0.001, k3, k3m, k2, n)
-    # getXcYc(x, 0.005, k3, k3m, k2, n)
-    # getXcYc(x, 0.01, k3, k3m, k2, n)
-    # getXcYc(x, 0.015, k3, k3m, k2, n)
-    # getXcYc(x, 0.02, k3, k3m, k2, n)
+    getXcYc(x, 0.001, k3, k3m, k2, n)
+    getXcYc(x, 0.005, k3, k3m, k2, n)
+    getXcYc(x, 0.01, k3, k3m, k2, n)
+    getXcYc(x, 0.015, k3, k3m, k2, n)
+    getXcYc(x, 0.02, k3, k3m, k2, n)
     #
     # # зависимость от k1 для неск. значений параметра k3m
     # getXcYc(x, 0.005, k3, 0.0005, k2, n)
@@ -89,68 +146,5 @@ if __name__ == "__main__":
     # plt.ylabel("k1")
     # axes.plot(k1m, k1, 'r')
     # axes.plot(K1m, K1, 'b')
-    # plt.show()
-
-    #однопараметрический анализ по параметру k1
-    k1mi = 0.005
-    i = 0
-    DI = [0.0]*1000
-    yh = []
-    xh = []
-    k1h = []
-    ysn = []
-    xsn = []
-    k1sn = []
-    ydi = []
-    xdi = []
-    k1di = []
-    k1[i] = (k1mi * x[i] + k2 * z[i] ** 2 * x[i]) / (z[i])
-    a11 = -k1[i] - k1mi - k2 * z[i] ** 2 + 2 * k2 * x[i] * z[i]
-    a12 = -k1[i] + 2 * k2 * x[i] * z[i]
-    a21 = -2 * k3 * z[i]
-    a22 = -2 * k3 * z[i] - 2 * k3m * y[i]
-    sp[i] = a11 + a22
-    det[i] = a11*a22 - a12*a21
-    DI[i] = sp[i]**2 - 4*det[i]
-    for i in range(1, n):
-        k1[i] = (k1mi * x[i] + k2 * z[i] ** 2 * x[i]) / (z[i])
-        a11 = -k1[i] - k1mi - k2 * z[i] ** 2 + 2 * k2 * x[i] * z[i]
-        a12 = -k1[i] + 2 * k2 * x[i] * z[i]
-        a21 = -2 * k3 * z[i]
-        a22 = -2 * k3 * z[i] - 2 * k3m * y[i]
-        sp[i] = a11 + a22
-        det[i] = a11 * a22 - a12 * a21
-        DI[i] = sp[i] ** 2 - 4 * det[i]
-        if sp[i]*sp[i-1]<=0:
-            yh.append(y[i])
-            xh.append(x[i])
-            k1h.append(k1[i])
-        if det[i]*det[i-1] <= 0:
-            ysn.append(y[i])
-            xsn.append(x[i])
-            k1sn.append(k1[i])
-        if DI[i]*DI[i-1] <= 0:
-            ydi.append(y[i])
-            xdi.append(x[i])
-            k1di.append(k1[i])
-
-    print(k1di)
-    print(xdi)
-    print(ydi)
-
-    # figure, axes = plt.subplots()
-    # axes.set_title("")
-    # plt.xlabel("k1")
-    # plt.ylabel("x,y")
-    # axes.plot(k1h, xh, 'r')
-    # axes.plot(k1h, yh, 'b')
-    # plt.show()
-
-    # figure, axes = plt.subplots()
-    # axes.set_title("")
-    # plt.xlabel("k1")
-    # plt.ylabel("x,y")
-    # axes.plot(k1sn, xsn, 'r')
-    # axes.plot(k1sn, ysn, 'b')
     # plt.show()
 
