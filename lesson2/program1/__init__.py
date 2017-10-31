@@ -4,7 +4,7 @@ def F(list1, list2):
     if list1[0] == list2[0]:
         list1.remove(list1[0])
         list2.remove(list2[0])
-        return F(list1, list2) + 1
+        return F(list1, list2)+1
     else:
         list3 = list1.copy()
         list4 = list2.copy()

@@ -2,6 +2,8 @@ import numpy as np
 import math
 import matplotlib as mp
 import matplotlib.pyplot as plt
+import scipy.integrate
+import numpy as nm
 
 
 def getXcYc(x, k1m, k3, k3m, k2, n):
@@ -78,6 +80,11 @@ def getXcYc(x, k1m, k3, k3m, k2, n):
     plt.show()
 
 
+def scipySolve(r, t, k1, k1m, k2, k3, k3m):
+    return [k1*(1 - r[0] - r[1]) - k1m*r[0] - k2*(1-r[0]-r[1])**2*r[0],
+            k3*(1-r[0]-r[1])**2 - k3m*r[1]**2]
+
+
 if __name__ == "__main__":
     # двухпараметрический анализ на плоскости (k1,k1m)
     k2 = 1.05
@@ -147,5 +154,26 @@ if __name__ == "__main__":
     # plt.ylabel("k1")
     # axes.plot(k1m, k1, 'r')
     # axes.plot(K1m, K1, 'b')
+    # # axes.plot(0.01,0.15, 'o')
     # plt.show()
 
+    #odeint
+    r = [0, 0]
+    t = nm.linspace(0, 50000, 1000000)
+    result = scipy.integrate.odeint(scipySolve, r, t, args=(0.15, 0.01, k2, k3, k3m))
+    x11 = []
+    y11 = []
+    for i in range(len(result)):
+        x11.append(result[i][0])
+        y11.append(result[i][1])
+
+    # figure, axes = plt.subplots()
+    # plt.xlabel("x")
+    # plt.ylabel("y")
+    # axes.plot(x11, y11, 'r')
+    # plt.show()
+
+    figure, axes = plt.subplots()
+    # axes.plot(t, x11, 'r')
+    axes.plot(t, y11, 'b')
+    plt.show()
