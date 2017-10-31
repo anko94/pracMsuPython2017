@@ -70,12 +70,13 @@ def getXcYc(x, k1m, k3, k3m, k2, n):
     axes.plot(k1, x, 'r')
     axes.plot(k1, y, 'b')
     for i in range(len(xh)):
-        axes.plot(k1h[i], xh[i], 'og')
+        axes.plot(k1h[i], xh[i], 'oy')
         axes.plot(k1h[i], yh[i], 'og')
     for i in range(len(xsn)):
         axes.plot(k1sn[i], xsn[i], 'oy')
-        axes.plot(k1sn[i], ysn[i], 'oy')
+        axes.plot(k1sn[i], ysn[i], 'og')
     plt.show()
+
 
 if __name__ == "__main__":
     # двухпараметрический анализ на плоскости (k1,k1m)
@@ -97,11 +98,11 @@ if __name__ == "__main__":
     Det = [0.0]*1000
 
     # #зависимость от k1 для неск. значений параметра k1m
-    getXcYc(x, 0.001, k3, k3m, k2, n)
-    getXcYc(x, 0.005, k3, k3m, k2, n)
-    getXcYc(x, 0.01, k3, k3m, k2, n)
-    getXcYc(x, 0.015, k3, k3m, k2, n)
-    getXcYc(x, 0.02, k3, k3m, k2, n)
+    # getXcYc(x, 0.001, k3, k3m, k2, n)
+    # getXcYc(x, 0.005, k3, k3m, k2, n)
+    # getXcYc(x, 0.01, k3, k3m, k2, n)
+    # getXcYc(x, 0.015, k3, k3m, k2, n)
+    # getXcYc(x, 0.02, k3, k3m, k2, n)
     #
     # # зависимость от k1 для неск. значений параметра k3m
     # getXcYc(x, 0.005, k3, 0.0005, k2, n)

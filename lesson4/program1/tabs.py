@@ -5,6 +5,7 @@ import xml.etree.cElementTree as et
 import scipy.integrate
 import numpy as np
 import threading
+import multiprocessing as mp
 
 
 class Tabs:
@@ -91,9 +92,11 @@ class Tabs:
                     list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
         m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
         n = int(self.text4.get(1.0, tkinter.END))
-        G = 6.674
-        t = np.linspace(0, 20, 20)
-        dt = 20/20
+        T = 0.01
+        Tn = 100
+        G = 6.674e-11
+        t = np.linspace(0, T, Tn)
+        dt = T/Tn
         x = []
         y = []
         for i in range(n):
@@ -124,7 +127,7 @@ class Tabs:
         for i in range(len(t)):
             if i != 0:
                 for j in range(n):
-                    x.append(x[(i-1)*n+j] + vx[(i-1)*n+j]*dt + 1.0/2*axm[(i-1)*n+j]*dt**2)
+                    x.append(x[(i - 1) * n + j] + vx[(i - 1) * n + j]*dt + 1.0/2*axm[(i-1)*n+j]*dt**2)
                     y.append(y[(i - 1) * n + j] + vy[(i - 1) * n + j] * dt + 1.0 / 2 * aym[(i - 1) * n + j] * dt ** 2)
                 for j in range(n):
                     ax = 0
@@ -155,11 +158,18 @@ class Tabs:
 
     def drawCircles(self, x, y, n):
         c = 1/(n*2)
+        r = 0
         for i in range(int(len(x)/n)):
             color = 0
             for j in range(n):
+                if j == 0:
+                    r = 6.9551e8
+                elif j == 1:
+                    r = 1737e3
+                else:
+                    r = 6371e6
                 color += c
-                self.mo.drawCircle((x[i*n+j], y[i*n+j]), 1, (color,color,color))
+                self.mo.drawCircle((x[i*n+j], y[i*n+j]), r, (color,color,color))
 
     def scipySolve(self, init, x, n, m):
         G = 6.674
@@ -331,13 +341,123 @@ class Tabs:
         self.drawCircles(x, y, n)
 
     def verletMultipricessing(self):
-        print("verlet-multiprocessing")
+
+        def work1(n, j, m, G, x, axm, y, aym):
+            ax = 0
+            ay = 0
+            for f in range(n):
+                if f != j:
+                    ax += m[f] * G * (x[f] - x[j]) / abs(x[f] - x[j]) ** 3
+                    ay += m[f] * G * (y[f] - y[j]) / abs(y[f] - y[j]) ** 3
+            axm[j] = ax
+            aym[j] = ay
+
+        def work2(n, i, j, dt, G, x, vx, axm, y, vy, aym):
+            x[i * n + j] = x[(i - 1) * n + j] + vx[(i - 1) * n + j] * dt + 1.0 / 2 * axm[(i - 1) * n + j] * dt ** 2
+            y[i * n + j] = y[(i - 1) * n + j] + vy[(i - 1) * n + j] * dt + 1.0 / 2 * aym[(i - 1) * n + j] * dt ** 2
+
+        def work3(n, i, j, dt, G, x, vx, m, axm, y, vy, aym):
+            ax = 0
+            ay = 0
+            for f in range(n):
+                if f != j:
+                    ax += m[f] * G * (x[i * n + f] - x[i * n + j]) / abs(
+                        x[i * n + f] - x[i * n + j]) ** 3
+                    ay += m[f] * G * (y[i * n + f] - y[i * n + j]) / abs(
+                        y[i * n + f] - y[i * n + j]) ** 3
+            axm[i * n + j] = ax
+            aym[i * n + j] = ay
+            vx[i * n + j] = (vx[(i - 1) * n + j] + 1.0 / 2 * dt * (
+                axm[i * n + j] + axm[(i - 1) * n + j]))
+            vy[i * n + j] = (vy[(i - 1) * n + j] + 1.0 / 2 * dt * (
+                aym[i * n + j] + aym[(i - 1) * n + j]))
+
+        # for example: x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
+        init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))),
+                    list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
+        m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
+        n = int(self.text4.get(1.0, tkinter.END))
+        G = 6.674
+        t = np.linspace(0, 3, 100)
+        dt = 3.0 / 100
+        x = mp.Array('d', range(n * 100))
+        y = mp.Array('d', range(n * 100))
+        for i in range(n):
+            x[i] = init[i * 2]
+            y[i] = init[i * 2 + 1]
+        vx = mp.Array('d', range(n * 100))
+        vy = mp.Array('d', range(n * 100))
+        for i in range(n):
+            vx[i] = init[i * 2 + 2 * n]
+            vy[i] = init[i * 2 + 1 + 2 * n]
+        axm = mp.Array('d', range(n * 100))
+        aym = mp.Array('d', range(n * 100))
+        processes = []
+        for j in range(n):
+            process = mp.Process(target=work1, args=(n, j, m, G, x, axm, y, aym))
+            process.start()
+            processes.append(process)
+        for thr in processes:
+            thr.join()
+        for i in range(len(t)):
+            if i != 0:
+                processes = []
+                for j in range(n):
+                    process = mp.Process(target=work2, args=(n, i, j, dt, G, x, vx, axm, y, vy, aym))
+                    processes.append(process)
+                    process.start()
+                for thr in processes:
+                    thr.join()
+                processes = []
+                for j in range(n):
+                    process = mp.Process(target=work3, args=(n, i, j, dt, G, x, vx, m, axm, y, vy, aym))
+                    processes.append(process)
+                    process.start()
+                for thr in processes:
+                    thr.join()
+        x1 = []
+        for i in range(len(x)):
+            x1.append(x[i])
+        y1 = []
+        for i in range(len(y)):
+            y1.append(y[i])
+        vx1 = []
+        for i in range(len(vx)):
+            vx1.append(vx[i])
+        vy1 = []
+        for i in range(len(vy)):
+            vy1.append(vy[i])
+        axm1 = []
+        for i in range(len(axm)):
+            axm1.append(axm[i])
+        aym1 = []
+        for i in range(len(aym)):
+            aym1.append(aym[i])
+        print(len(x1), x1)
+        print(len(y1), y1)
+        print(len(vx1), vx1)
+        print(len(vy1), vy1)
+        print(len(axm1), axm1)
+        print(len(aym1), aym1)
+        self.drawCircles(x1, y1, n)
 
     def verletCython(self):
         print("verlet-cython")
 
     def verletOpencl(self):
         print("verlet-opencl")
+
+    def setN(self, value):
+        self.text4.insert(tkinter.INSERT, value)
+
+    def setM(self, value):
+        self.text5.insert(tkinter.INSERT, value)
+
+    def setR(self, value):
+        self.text6.insert(tkinter.INSERT, value)
+
+    def setV(self, value):
+        self.text7.insert(tkinter.INSERT, value)
 
     def __init__(self, root, mo):
         style = ttk.Style()
