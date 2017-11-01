@@ -1,6 +1,5 @@
 import numpy as np
 import math
-import matplotlib as mp
 import matplotlib.pyplot as plt
 import scipy.integrate
 import numpy as nm
@@ -73,9 +72,9 @@ def getXcYc(x, k1m, k3, k3m, k2, n):
     axes.plot(k1, y, 'b')
     for i in range(len(xh)):
         axes.plot(k1h[i], xh[i], 'oy')
-        axes.plot(k1h[i], yh[i], 'og')
+        axes.plot(k1h[i], yh[i], 'oy')
     for i in range(len(xsn)):
-        axes.plot(k1sn[i], xsn[i], 'oy')
+        axes.plot(k1sn[i], xsn[i], 'og')
         axes.plot(k1sn[i], ysn[i], 'og')
     plt.show()
 
@@ -136,7 +135,7 @@ if __name__ == "__main__":
 
     # расчет линии кратности
     for i in range(n):
-        K1m[i] = ((k2 * z[i] ** 2 * x[i] + k2 * z[i] ** 3 - 2 * k2 * x[i] * z[i]) * (
+        K1m[i] = ((k2 * z[i] ** 2 * x[i] + k2 * z[i] ** 3 - 2 * k2 * x[i] * z[i]**2) * (
         2 * k3 * z[i] + 2 * k3m * y[i]) - (k2 * z[i] ** 2 * x[i] - 2 * k2 * x[i] * z[i] ** 2) * 2 * k3 * z[i]) / (
                    x[i] * 2 * k3 * z[i] - (x[i] + z[i]) * (2 * k3 * z[i] + 2 * k3m * y[i]))
         K1[i] = (K1m[i] * x[i] + k2 * z[i] ** 2 * x[i]) / (z[i])
@@ -147,19 +146,18 @@ if __name__ == "__main__":
         Det[i] = a11 * a22 - a12 * a21
         Sp[i] = a11 + a22
 
-    # #построение фазового портрета
-    # figure, axes = plt.subplots()
-    # axes.set_title("Parametric Portrait")
-    # plt.xlabel("km1")
-    # plt.ylabel("k1")
-    # axes.plot(k1m, k1, 'r')
-    # axes.plot(K1m, K1, 'b')
-    # # axes.plot(0.01,0.15, 'o')
-    # plt.show()
+    #построение фазового портрета
+    figure, axes = plt.subplots()
+    axes.set_title("Parametric Portrait")
+    plt.xlabel("km1")
+    plt.ylabel("k1")
+    axes.plot(k1m, k1, 'r')
+    axes.plot(K1m, K1, 'b')
+    plt.show()
 
     #odeint
     r = [0, 0]
-    t = nm.linspace(0, 50000, 1000000)
+    t = nm.linspace(0, 10000, 1000000)
     result = scipy.integrate.odeint(scipySolve, r, t, args=(0.15, 0.01, k2, k3, k3m))
     x11 = []
     y11 = []
@@ -172,8 +170,8 @@ if __name__ == "__main__":
     # plt.ylabel("y")
     # axes.plot(x11, y11, 'r')
     # plt.show()
-
-    figure, axes = plt.subplots()
+    #
+    # figure, axes = plt.subplots()
     # axes.plot(t, x11, 'r')
-    axes.plot(t, y11, 'b')
-    plt.show()
+    # axes.plot(t, y11, 'b')
+    # plt.show()
