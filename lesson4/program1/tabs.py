@@ -6,6 +6,7 @@ import scipy.integrate
 import numpy as np
 import threading
 import multiprocessing as mp
+import math
 
 
 class Tabs:
@@ -92,9 +93,9 @@ class Tabs:
                     list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
         m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
         n = int(self.text4.get(1.0, tkinter.END))
-        T = 0.01
-        Tn = 100
         G = 6.674e-11
+        T = 10000000
+        Tn = 100
         t = np.linspace(0, T, Tn)
         dt = T/Tn
         x = []
@@ -114,14 +115,8 @@ class Tabs:
             ay = 0
             for f in range(n):
                 if f != j:
-                    if x[f] != x[j]:
-                        ax += m[f] * G * (x[f] - x[j]) / abs(x[f] - x[j]) ** 3
-                    else:
-                        ax += 0
-                    if y[f] != y[j]:
-                        ay += m[f] * G * (y[f] - y[j]) / abs(y[f] - y[j]) ** 3
-                    else:
-                        ay += 0
+                    ax += m[f] * G * (x[f] - x[j]) / math.sqrt((x[f] - x[j])**2 + (y[f] - y[j])**2) ** 3
+                    ay += m[f] * G * (y[f] - y[j]) / math.sqrt((x[f] - x[j])**2 + (y[f] - y[j])**2) ** 3
             axm.append(ax)
             aym.append(ay)
         for i in range(len(t)):
@@ -134,16 +129,10 @@ class Tabs:
                     ay = 0
                     for f in range(n):
                         if f != j:
-                            if x[i * n + f] != x[i * n + j]:
-                                ax += m[f] * G * (x[i * n + f] - x[i * n + j]) / abs(
-                                    x[i * n + f] - x[i * n + j]) ** 3
-                            else:
-                                ax += 0
-                            if y[i * n + f] != y[i * n + j]:
-                                ay += m[f] * G * (y[i * n + f] - y[i * n + j]) / abs(
-                                    y[i * n + f] - y[i * n + j]) ** 3
-                            else:
-                                ay += 0
+                            ax += m[f] * G * (x[i * n + f] - x[i * n + j]) /\
+                                  math.sqrt((x[i * n + f] - x[i * n + j])**2 + (y[i * n + f] - y[i * n + j])**2) ** 3
+                            ay += m[f] * G * (y[i * n + f] - y[i * n + j]) /\
+                                  math.sqrt((x[i * n + f] - x[i * n + j])**2 + (y[i * n + f] - y[i * n + j])**2) ** 3
                     axm.append(ax)
                     aym.append(ay)
                     vx.append(vx[(i - 1) * n + j] + 1.0 / 2 * dt * (axm[i * n + j] + axm[(i - 1) * n + j]))
@@ -157,22 +146,25 @@ class Tabs:
         self.drawCircles(x, y, n)
 
     def drawCircles(self, x, y, n):
-        c = 1/(n*2)
         r = 0
+        color = (1,1,1)
         for i in range(int(len(x)/n)):
-            color = 0
             for j in range(n):
                 if j == 0:
                     r = 6.9551e8
+                    color = (1, 0, 0)
                 elif j == 1:
-                    r = 1737e3
+                    r = 15371e4
+                    # r = 1737e3
+                    color = (0, 1, 0)
                 else:
-                    r = 6371e6
-                color += c
-                self.mo.drawCircle((x[i*n+j], y[i*n+j]), r, (color,color,color))
+                    r = 15371e4
+                    # r = 6371e3
+                    color = (0, 0, 1)
+                self.mo.drawCircle((x[i*n+j], y[i*n+j]), r, color)
 
-    def scipySolve(self, init, x, n, m):
-        G = 6.674
+    def scipySolve(self, init, t, n, m):
+        G = 6.674e-11
         x0 = []
         y0 = []
         for i in range(n):
@@ -181,37 +173,47 @@ class Tabs:
         vx0 = []
         vy0 = []
         for i in range(n):
-            vx0.append(init[i*2 + n])
-            vy0.append(init[i * 2 + 1 + n])
+            vx0.append(init[i*2 + 2*n])
+            vy0.append(init[i * 2 + 1 + 2*n])
         result = []
         for i in range(n):
             result.append(vx0[i])
             result.append(vy0[i])
+        for i in range(n):
             sumx = 0
             sumy = 0
-            for k in range(n-1):
+            for k in range(n):
                 if k != i:
-                    sumx += G * m[k] * (x0[k] - x0[i])/abs((x0[k] - x0[i])**3)
-                    sumy += G * m[k] * (y0[k] - y0[i]) / abs((y0[k] - y0[i]) ** 3)
+                    sumx += G * m[k] * (x0[k] - x0[i]) / math.sqrt((x0[k] - x0[i])**2 + (y0[k] - y0[i])**2) ** 3
+                    sumy += G * m[k] * (y0[k] - y0[i]) / math.sqrt((x0[k] - x0[i])**2 + (y0[k] - y0[i])**2) ** 3
             result.append(sumx)
             result.append(sumy)
         return result
 
-
     def scipy(self):
         # for example: m1, m2, m3, x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, self.text6.get(1.0, tkinter.END).split(" "))), list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
-        t = np.linspace(0, 3, 100)
+        T = 10000000
+        Tn = 100
+        t = np.linspace(0, T, Tn)
         n = int(self.text4.get(1.0, tkinter.END))
         result = scipy.integrate.odeint(self.scipySolve, init, t, args=(n,
                                                                         list(map(float,
                                                                                  self.text5.get(1.0, tkinter.END).split(" ")))))
         x = []
+        vx = []
+        vy = []
         y = []
         for i in range(len(result)):
             for j in range(n):
                 x.append(result[i][j*2])
-                y.append(result[i][j * 2 + 1])
+                y.append(result[i][j * 2+1])
+                vx.append(result[i][j * 2+2*n])
+                vy.append(result[i][j * 2+1+2*n])
+        print(x)
+        print(y)
+        print(vx)
+        print(vy)
         self.drawCircles(x, y, n)
 
     class MyThread(threading.Thread):
@@ -231,8 +233,10 @@ class Tabs:
             ay = 0
             for f in range(self.n):
                 if f != self.j:
-                    ax += self.m[f] * self.G * (self.x[f] - self.x[self.j]) / abs(self.x[f] - self.x[self.j]) ** 3
-                    ay += self.m[f] * self.G * (self.y[f] - self.y[self.j]) / abs(self.y[f] - self.y[self.j]) ** 3
+                    ax += self.m[f] * self.G * (self.x[f] - self.x[self.j]) /\
+                          math.sqrt((self.x[f] - self.x[self.j])**2 + (self.y[f] - self.y[self.j])**2) ** 3
+                    ay += self.m[f] * self.G * (self.y[f] - self.y[self.j]) /\
+                          math.sqrt((self.x[f] - self.x[self.j])**2 + (self.y[f] - self.y[self.j])**2) ** 3
             self.axm.insert(self.j, ax)
             self.aym.insert(self.j, ay)
 
@@ -279,10 +283,10 @@ class Tabs:
             ay = 0
             for f in range(self.n):
                 if f != self.j:
-                    ax += self.m[f] * self.G * (self.x[self.i * self.n + f] - self.x[self.i * self.n + self.j]) / abs(
-                        self.x[self.i * self.n + f] - self.x[self.i * self.n + self.j]) ** 3
-                    ay += self.m[f] * self.G * (self.y[self.i * self.n + f] - self.y[self.i * self.n + self.j]) / abs(
-                        self.y[self.i * self.n + f] - self.y[self.i * self.n + self.j]) ** 3
+                    ax += self.m[f] * self.G * (self.x[self.i * self.n + f] - self.x[self.i * self.n + self.j]) / \
+                          math.sqrt((self.x[self.i * self.n + f] - self.x[self.i * self.n + self.j])**2 + (self.y[self.i * self.n + f] - self.y[self.i * self.n + self.j])**2) ** 3
+                    ay += self.m[f] * self.G * (self.y[self.i * self.n + f] - self.y[self.i * self.n + self.j]) /\
+                          math.sqrt((self.x[self.i * self.n + f] - self.x[self.i * self.n + self.j])**2 + (self.y[self.i * self.n + f] - self.y[self.i * self.n + self.j])**2) ** 3
             self.axm.insert(self.i * self.n + self.j, ax)
             self.aym.insert(self.i * self.n + self.j, ay)
             self.vx.append(self.vx[(self.i - 1) * self.n + self.j] + 1.0 / 2 * self.dt * (self.axm[self.i * self.n + self.j] + self.axm[(self.i - 1) * self.n + self.j]))
@@ -294,9 +298,11 @@ class Tabs:
                     list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
         m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
         n = int(self.text4.get(1.0, tkinter.END))
-        G = 6.674
-        t = np.linspace(0, 3, 100)
-        dt = 3.0 / 100
+        G = 6.674e-11
+        T = 10000000
+        Tn = 100
+        t = np.linspace(0, T, Tn)
+        dt = T / Tn
         x = [] * n * 100
         y = [] * n * 100
         for i in range(n):
@@ -341,14 +347,13 @@ class Tabs:
         self.drawCircles(x, y, n)
 
     def verletMultipricessing(self):
-
         def work1(n, j, m, G, x, axm, y, aym):
             ax = 0
             ay = 0
             for f in range(n):
                 if f != j:
-                    ax += m[f] * G * (x[f] - x[j]) / abs(x[f] - x[j]) ** 3
-                    ay += m[f] * G * (y[f] - y[j]) / abs(y[f] - y[j]) ** 3
+                    ax += m[f] * G * (x[f] - x[j]) / math.sqrt((x[f] - x[j])**2 + (y[f] - y[j])**2) ** 3
+                    ay += m[f] * G * (y[f] - y[j]) / math.sqrt((x[f] - x[j])**2 + (y[f] - y[j])**2) ** 3
             axm[j] = ax
             aym[j] = ay
 
@@ -361,10 +366,10 @@ class Tabs:
             ay = 0
             for f in range(n):
                 if f != j:
-                    ax += m[f] * G * (x[i * n + f] - x[i * n + j]) / abs(
-                        x[i * n + f] - x[i * n + j]) ** 3
-                    ay += m[f] * G * (y[i * n + f] - y[i * n + j]) / abs(
-                        y[i * n + f] - y[i * n + j]) ** 3
+                    ax += m[f] * G * (x[i * n + f] - x[i * n + j]) / \
+                          math.sqrt((x[i * n + f] - x[i * n + j])**2 + (y[i * n + f] - y[i * n + j])**2) ** 3
+                    ay += m[f] * G * (y[i * n + f] - y[i * n + j]) / \
+                          math.sqrt((x[i * n + f] - x[i * n + j])**2 + (y[i * n + f] - y[i * n + j])**2) ** 3
             axm[i * n + j] = ax
             aym[i * n + j] = ay
             vx[i * n + j] = (vx[(i - 1) * n + j] + 1.0 / 2 * dt * (
@@ -377,9 +382,11 @@ class Tabs:
                     list(map(float, self.text7.get(1.0, tkinter.END).split(" ")))], [])
         m = list(map(float, self.text5.get(1.0, tkinter.END).split(" ")))
         n = int(self.text4.get(1.0, tkinter.END))
-        G = 6.674
-        t = np.linspace(0, 3, 100)
-        dt = 3.0 / 100
+        G = 6.674e-11
+        T = 10000000
+        Tn = 100
+        t = np.linspace(0, T, Tn)
+        dt = T / Tn
         x = mp.Array('d', range(n * 100))
         y = mp.Array('d', range(n * 100))
         for i in range(n):
