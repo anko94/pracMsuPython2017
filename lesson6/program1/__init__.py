@@ -1,6 +1,8 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
-from random import random
+import math
+import numpy as np
+
 
 # Процедура подготовки шейдера (тип шейдера, текст шейдера)
 def create_shader(shader_type, source):
@@ -13,72 +15,78 @@ def create_shader(shader_type, source):
     # Возвращаем созданный шейдер
     return shader
 
+
+def mouseMotion(x, y):
+    global lastTime
+    global horizontalAngle
+    global verticalAngle
+    currentTime = glutGet(GLUT_ELAPSED_TIME)
+    deltaTime = currentTime - lastTime
+    lastTime = currentTime
+
+    #Compute new orientation
+    horizontalAngle += mouseSpeed * deltaTime * (windowHeight / 2 - x)
+    verticalAngle += mouseSpeed * deltaTime * (windowWidth / 2 - y)
+
+    direction = [math.cos(verticalAngle) * math.sin(horizontalAngle), math.sin(verticalAngle), math.cos(verticalAngle) * math.cos(horizontalAngle)]
+    right = [math.sin(horizontalAngle - 3.14/2.0), 0, math.cos(horizontalAngle - 3.14/2.0)]
+    up = np.cross(np.array(direction), np.array(right)).toList()
+
+
 # Процедура обработки специальных клавиш
 def specialkeys(key, x, y):
-    # Сообщаем о необходимости использовать глобального массива pointcolor
-    global pointcolor
     # Обработчики специальных клавиш
     if key == GLUT_KEY_UP:          # Клавиша вверх
-        glRotatef(5, 1, 0, 0)       # Вращаем на 5 градусов по оси X
+        for i in range(len(position)):
+            position[i] += direction[i] * deltaTime * speed
     if key == GLUT_KEY_DOWN:        # Клавиша вниз
-        glRotatef(-5, 1, 0, 0)      # Вращаем на -5 градусов по оси X
+        for i in range(len(position)):
+            position[i] -= direction[i] * deltaTime * speed
     if key == GLUT_KEY_LEFT:        # Клавиша влево
-        glRotatef(5, 0, 1, 0)       # Вращаем на 5 градусов по оси Y
+        for i in range(len(position)):
+            position[i] -= right[i] * deltaTime * speed
     if key == GLUT_KEY_RIGHT:       # Клавиша вправо
-        glRotatef(-5, 0, 1, 0)      # Вращаем на -5 градусов по оси Y
-    if key == GLUT_KEY_END:         # Клавиша END
-        # Заполняем массив pointcolor случайными числами в диапазоне 0-1
-        pointcolor = [[random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
+        for i in range(len(position)):
+            position[i] += right[i] * deltaTime * speed
 
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()],
-                      [random(), random(), random()]
-                      ]
 
 def draw():
-    glClear(GL_COLOR_BUFFER_BIT)
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
     glEnableClientState(GL_VERTEX_ARRAY)
     glEnableClientState(GL_COLOR_ARRAY)
-    glVertexPointer(4, GL_FLOAT, 0, pointdata)
-    glColorPointer(4, GL_FLOAT, 0, pointcolor)
+    glVertexPointer(3, GL_FLOAT, 0, pointdata)
+    glColorPointer(3, GL_FLOAT, 0, pointcolor)
     glDrawArrays(GL_QUADS, 0, 24)
+    glutSolidCone(1, 3, 50, 50)
+
     glDisableClientState(GL_VERTEX_ARRAY)
     glDisableClientState(GL_COLOR_ARRAY)
     glutSwapBuffers()
 
+
 if __name__ == '__main__':
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
-    glutInitWindowSize(300, 300)
-    glutInitWindowPosition(50, 50)
+    # variables
+    position = [0, 0, 5]
+    right = []
+    horizontalAngle = 3.14
+    verticalAngle = 0.0
+    initialFoV = 45.0
+    speed = 3.0
+    mouseSpeed = 0.005
+    lastTime = 0
+    direction = []
+    deltaTime = 0
+
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
+    glEnable(GL_DEPTH_TEST);
     glutInit(sys.argv)
+    windowWidth = glutGet(GLUT_WINDOW_WIDTH)
+    windowHeight = glutGet(GLUT_WINDOW_HEIGHT)
     glutCreateWindow(b"Program!")
     glutDisplayFunc(draw)
     glutIdleFunc(draw)
     glutSpecialFunc(specialkeys)
+    glutPassiveMotionFunc(mouseMotion)
     glClearColor(0.2, 0.2, 0.2, 1)
     program = glCreateProgram()
     # Положение вершин не меняется
