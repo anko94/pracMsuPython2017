@@ -1,5 +1,5 @@
 import multiprocessing as mp
-
+import time
 
 def work(A, B, I, J, C, columns):
     for i in range(len(I)):
@@ -27,6 +27,7 @@ def getColumnJ(B, j):
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     A = [[1, 2, 3, 5], [3, 3, 4, 5], [1, 2, 1, 5], [3, 4, 5, 3]]
     B = [[1, 1], [3, 3], [4, 4], [3, 4]]
     C = mp.Array('d', range(len(A)*len(B[0])))
@@ -73,5 +74,7 @@ if __name__ == "__main__":
                 C1.append(C[i*columns+j])
             Cresult.append(C1)
         print(Cresult)
+    elapsed_time = time.time() - start_time
+    print(elapsed_time)
 
 

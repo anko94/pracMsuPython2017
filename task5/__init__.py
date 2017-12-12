@@ -175,3 +175,5 @@ if __name__ == "__main__":
     # axes.plot(t, x11, 'r')
     # axes.plot(t, y11, 'b')
     # plt.show()
+
+    # построение фазового портрета

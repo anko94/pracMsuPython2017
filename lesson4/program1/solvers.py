@@ -362,9 +362,13 @@ class Solvers:
     def countError(self, nStr, mStr, xyStr, vStr, x, y, n):
         xScipy, yScipy, nScipy = self.scipy(nStr, mStr, xyStr, vStr)
         sum = 0
+        rmax = 0
         for i in range(len(x)):
-            sum += ((x[i] - xScipy[i])**2 + (y[i] - xScipy[i])**2)
-        sum = sum / ((len(x)-1)**2)
+            r = (x[i] - xScipy[i])**2 + (y[i] - yScipy[i])**2
+            if rmax < r:
+                rmax = r
+            sum += r
+        sum = sum / (rmax**2)
         sum = math.sqrt(sum)
         print("Error:", sum)
 

@@ -1,5 +1,6 @@
 from lesson2.program2.notintexception import NotIntException
 
+
 def d(list, index, l):
     if index == len(list):
         return l

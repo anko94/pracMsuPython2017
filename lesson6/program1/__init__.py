@@ -16,48 +16,49 @@ def create_shader(shader_type, source):
     return shader
 
 
-def mouseMotion(x, y):
-    global lastTime
-    global horizontalAngle
-    global verticalAngle
-    currentTime = glutGet(GLUT_ELAPSED_TIME)
-    deltaTime = currentTime - lastTime
-    lastTime = currentTime
-
-    #Compute new orientation
-    horizontalAngle += mouseSpeed * deltaTime * (windowHeight / 2 - x)
-    verticalAngle += mouseSpeed * deltaTime * (windowWidth / 2 - y)
-
-    direction = [math.cos(verticalAngle) * math.sin(horizontalAngle), math.sin(verticalAngle), math.cos(verticalAngle) * math.cos(horizontalAngle)]
-    right = [math.sin(horizontalAngle - 3.14/2.0), 0, math.cos(horizontalAngle - 3.14/2.0)]
-    up = np.cross(np.array(direction), np.array(right)).toList()
-
-
 # Процедура обработки специальных клавиш
 def specialkeys(key, x, y):
     # Обработчики специальных клавиш
-    if key == GLUT_KEY_UP:          # Клавиша вверх
-        for i in range(len(position)):
-            position[i] += direction[i] * deltaTime * speed
-    if key == GLUT_KEY_DOWN:        # Клавиша вниз
-        for i in range(len(position)):
-            position[i] -= direction[i] * deltaTime * speed
-    if key == GLUT_KEY_LEFT:        # Клавиша влево
-        for i in range(len(position)):
-            position[i] -= right[i] * deltaTime * speed
-    if key == GLUT_KEY_RIGHT:       # Клавиша вправо
-        for i in range(len(position)):
-            position[i] += right[i] * deltaTime * speed
+    if key == GLUT_KEY_UP:  # Клавиша вверх
+        glRotatef(5, 1, 0, 0)  # Вращаем на 5 градусов по оси X
+    if key == GLUT_KEY_DOWN:  # Клавиша вниз
+        glRotatef(-5, 1, 0, 0)  # Вращаем на -5 градусов по оси X
+    if key == GLUT_KEY_LEFT:  # Клавиша влево
+        glRotatef(5, 0, 1, 0)  # Вращаем на 5 градусов по оси Y
+    if key == GLUT_KEY_RIGHT:  # Клавиша вправо
+        glRotatef(-5, 0, 1, 0)  # Вращаем на -5 градусов по оси Y
 
 
 def draw():
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glEnable(GL_DEPTH_TEST)
     glEnableClientState(GL_VERTEX_ARRAY)
     glEnableClientState(GL_COLOR_ARRAY)
     glVertexPointer(3, GL_FLOAT, 0, pointdata)
     glColorPointer(3, GL_FLOAT, 0, pointcolor)
     glDrawArrays(GL_QUADS, 0, 24)
-    glutSolidCone(1, 3, 50, 50)
+
+    # cone's pinnacle
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex3f(0, 0, 1)
+    for angle in range(361):
+        x = math.sin(math.radians(angle))
+        y = math.cos(math.radians(angle))
+        glColor3f(1,1,0)
+        glVertex2f(x, y)
+    glEnd()
+
+    # bottom of cone
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(0, 0)
+    for angle in range(361):
+        x = math.sin(math.radians(angle))
+        y = math.cos(math.radians(angle))
+        glColor3f(1, 0, 0)
+        glVertex2f(x, y)
+    glEnd()
+
+    glShadeModel(GL_FLAT)
 
     glDisableClientState(GL_VERTEX_ARRAY)
     glDisableClientState(GL_COLOR_ARRAY)
@@ -65,20 +66,7 @@ def draw():
 
 
 if __name__ == '__main__':
-    # variables
-    position = [0, 0, 5]
-    right = []
-    horizontalAngle = 3.14
-    verticalAngle = 0.0
-    initialFoV = 45.0
-    speed = 3.0
-    mouseSpeed = 0.005
-    lastTime = 0
-    direction = []
-    deltaTime = 0
-
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
-    glEnable(GL_DEPTH_TEST);
     glutInit(sys.argv)
     windowWidth = glutGet(GLUT_WINDOW_WIDTH)
     windowHeight = glutGet(GLUT_WINDOW_HEIGHT)
@@ -86,7 +74,6 @@ if __name__ == '__main__':
     glutDisplayFunc(draw)
     glutIdleFunc(draw)
     glutSpecialFunc(specialkeys)
-    glutPassiveMotionFunc(mouseMotion)
     glClearColor(0.2, 0.2, 0.2, 1)
     program = glCreateProgram()
     # Положение вершин не меняется
@@ -104,23 +91,24 @@ if __name__ == '__main__':
                 void main() {
                     gl_FragColor = vertex_color;
     }""")
+
     glAttachShader(program, vertex)
     glAttachShader(program, fragment)
     glLinkProgram(program)
     glUseProgram(program)
-    pointdata = [[0.5, -0.5, 0.5], [0.5,  0.5, 0.5], [-0.5,  0.5, 0.5], [-0.5, -0.5, 0.5],
-                 [0.5, -0.5, -0.5], [0.5,  0.5, -0.5], [0.5,  0.5,  0.5], [0.5, -0.5,  0.5],
-                 [-0.5, -0.5,  0.5], [-0.5,  0.5,  0.5], [-0.5,  0.5, -0.5], [-0.5, -0.5, -0.5],
-                 [0.5,  0.5,  0.5], [0.5,  0.5, -0.5 ], [-0.5,  0.5, -0.5], [-0.5,  0.5,  0.5],
-                 [0.5, -0.5, -0.5], [0.5, -0.5,  0.5], [-0.5, -0.5,  0.5], [-0.5, -0.5, -0.5],
-                 [-0.5, -0.5, -0.5], [-0.5,  0.5, -0.5], [0.5,  0.5, -0.5], [0.5, -0.5, -0.5]]
-    pointcolor = [[1.0,  1.0, 1.0],
-                  [1.0,  0.0,  1.0],
-                  [1.0,  0.0,  1.0],
-                  [1.0,  0.0,  1.0],
+    pointdata = [[0.5, -0.5, -1], [ 0.5,  0.5, -1], [-0.5,  0.5, -1], [-0.5, -0.5, -1],
+                 [0.5, -0.5, -0.5], [0.5,  0.5, -0.5], [-0.5,  0.5, -0.5], [-0.5, -0.5, -0.5],
+                 [0.5, -0.5, -1], [0.5,  0.5, -1], [0.5,  0.5,  -0.5], [0.5, -0.5,  -0.5],
+                 [-0.5, -0.5,  -0.5 ], [-0.5, 0.5,  -0.5], [-0.5,  0.5, -1], [-0.5, -0.5, -1],
+                 [0.5,  0.5,  -0.5], [0.5,  0.5, -1], [-0.5,  0.5, -1], [-0.5,  0.5,  -0.5],
+                 [0.5, -0.5, -1], [0.5, -0.5,  -0.5], [-0.5, -0.5,  -0.5 ], [-0.5, -0.5, -1]]
+    pointcolor = [[1.0, 1.0, 1.0],
+                  [1.0, 0.0, 1.0],
+                  [1.0, 0.0, 1.0],
+                  [1.0, 0.0, 1.0],
 
-                  [1.0,  0.0,  1.0],
-                  [1.0,  0.0,  1.0],
+                  [1.0, 0.0, 1.0],
+                  [1.0, 0.0, 1.0],
                   [1.0, 1.0, 1.0],
                   [1.0, 0.0, 1.0],
 
@@ -145,4 +133,3 @@ if __name__ == '__main__':
                   [1.0, 0.0, 1.0]
                   ]
     glutMainLoop()
-

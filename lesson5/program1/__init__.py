@@ -1,4 +1,5 @@
 import threading
+import time
 
 
 class MyThread(threading.Thread):
@@ -18,6 +19,7 @@ class MyThread(threading.Thread):
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     A = [[1, 2, 3, 5], [3, 3, 4, 5], [1, 2, 1, 5], [3, 4, 5, 3]]
     B = [[1, 1], [3, 3], [4, 4], [3, 4]]
     C = []
@@ -40,3 +42,5 @@ if __name__ == "__main__":
         for t in threads:
             t.join()
         print(C)
+    elapsed_time = time.time() - start_time
+    print(elapsed_time)
