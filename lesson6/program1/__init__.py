@@ -1,7 +1,6 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 import math
-import numpy as np
 
 
 # Процедура подготовки шейдера (тип шейдера, текст шейдера)
@@ -32,15 +31,20 @@ def specialkeys(key, x, y):
 def draw():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glEnable(GL_DEPTH_TEST)
-    glEnableClientState(GL_VERTEX_ARRAY)
-    glEnableClientState(GL_COLOR_ARRAY)
-    glVertexPointer(3, GL_FLOAT, 0, pointdata)
-    glColorPointer(3, GL_FLOAT, 0, pointcolor)
-    glDrawArrays(GL_QUADS, 0, 24)
+
+    for i in range(6):
+        glBegin(GL_POLYGON)
+        glColor3f(pointcolor[i][0], pointcolor[i][1], pointcolor[i][2])
+        glVertex3f(pointdata[i*4][0], pointdata[i*4][1], pointdata[i*4][2])
+        glVertex3f(pointdata[i*4+1][0], pointdata[i*4+1][1], pointdata[i*4+1][2])
+        glVertex3f(pointdata[i*4+2][0], pointdata[i*4+2][1], pointdata[i*4+2][2])
+        glVertex3f(pointdata[i*4+3][0], pointdata[i*4+3][1], pointdata[i*4+3][2])
+        glEnd()
 
     # cone's pinnacle
     glBegin(GL_TRIANGLE_FAN)
-    glVertex3f(0, 0, 1)
+    glColor3f(1, 1, 0)
+    glVertex3f(conepointdata[0][0], conepointdata[0][1], conepointdata[0][2])
     for angle in range(361):
         x = math.sin(math.radians(angle))
         y = math.cos(math.radians(angle))
@@ -50,7 +54,8 @@ def draw():
 
     # bottom of cone
     glBegin(GL_TRIANGLE_FAN)
-    glVertex2f(0, 0)
+    glColor3f(1, 0, 0)
+    glVertex3f(conepointdata[1][0], conepointdata[1][1], conepointdata[1][2])
     for angle in range(361):
         x = math.sin(math.radians(angle))
         y = math.cos(math.radians(angle))
@@ -58,10 +63,6 @@ def draw():
         glVertex2f(x, y)
     glEnd()
 
-    glShadeModel(GL_FLAT)
-
-    glDisableClientState(GL_VERTEX_ARRAY)
-    glDisableClientState(GL_COLOR_ARRAY)
     glutSwapBuffers()
 
 
@@ -96,40 +97,33 @@ if __name__ == '__main__':
     glAttachShader(program, fragment)
     glLinkProgram(program)
     glUseProgram(program)
-    pointdata = [[0.5, -0.5, -1], [ 0.5,  0.5, -1], [-0.5,  0.5, -1], [-0.5, -0.5, -1],
-                 [0.5, -0.5, -0.5], [0.5,  0.5, -0.5], [-0.5,  0.5, -0.5], [-0.5, -0.5, -0.5],
-                 [0.5, -0.5, -1], [0.5,  0.5, -1], [0.5,  0.5,  -0.5], [0.5, -0.5,  -0.5],
-                 [-0.5, -0.5,  -0.5 ], [-0.5, 0.5,  -0.5], [-0.5,  0.5, -1], [-0.5, -0.5, -1],
-                 [0.5,  0.5,  -0.5], [0.5,  0.5, -1], [-0.5,  0.5, -1], [-0.5,  0.5,  -0.5],
-                 [0.5, -0.5, -1], [0.5, -0.5,  -0.5], [-0.5, -0.5,  -0.5 ], [-0.5, -0.5, -1]]
-    pointcolor = [[1.0, 1.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
 
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 1.0, 1.0],
-                  [1.0, 0.0, 1.0],
+    pointdata = []
+    conepointdata = []
+    with open("scene.obj") as obj:
+        data = obj.read()
+    lines = data.splitlines()
+    cube = 0
+    cone = 0
+    for line in lines:
+        elem = line.split(" ")
+        if len(elem)>1 and elem[1].__eq__("cube"):
+            cube = 1
+            cone = 0
+        if len(elem)>1 and elem[1].__eq__("cone"):
+            cube = 0
+            cone = 1
+        if cube == 1 and elem[0].__eq__("v"):
+            pointdata.append([float(elem[1]), float(elem[2]), float(elem[3])])
+        if cone == 1 and elem[0].__eq__("v"):
+            conepointdata.append([float(elem[1]), float(elem[2]), float(elem[3])])
 
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-
-                  [1.0, 1.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 1.0, 1.0],
-                  [1.0, 0.0, 1.0],
-
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0],
-                  [1.0, 0.0, 1.0]
+    pointcolor = [
+                  [0, 1.0, 0],
+                  [1.0, 0, 0],
+                  [1.0, 1.0, 0.0],
+                  [1.0, 1.0, 0.0],
+                  [1.0, 1.0, 0.0],
+                  [1.0, 1.0, 0.0]
                   ]
     glutMainLoop()
