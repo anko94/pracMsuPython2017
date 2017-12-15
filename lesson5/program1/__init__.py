@@ -1,5 +1,6 @@
 import threading
 import time
+from random import randint
 
 
 class MyThread(threading.Thread):
@@ -19,10 +20,28 @@ class MyThread(threading.Thread):
 
 
 if __name__ == "__main__":
-    start_time = time.time()
-    A = [[1, 2, 3, 5], [3, 3, 4, 5], [1, 2, 1, 5], [3, 4, 5, 3]]
-    B = [[1, 1], [3, 3], [4, 4], [3, 4]]
+    A = []
+    B = []
+    for i in range(50):
+        E = []
+        E1 = []
+        for j in range(50):
+            E.append(randint(-j-1, j+1))
+            E1.append(randint(-j-1, j+1))
+        A.append(E)
+        B.append(E1)
     C = []
+
+    cResult = []
+    for i in range(len(A)):
+        C1 = []
+        for j in range(len(B[0])):
+            sum1 = 0
+            for j1 in range(len(A[0])):
+                sum1 += A[i][j1] * B[j1][j]
+            C1.append(sum1)
+        cResult.append(C1)
+    start_time = time.time()
     for i in range(len(A)):
         E = [0] * len(B[0])
         C.append(E)
@@ -41,6 +60,10 @@ if __name__ == "__main__":
                 thread.start()
         for t in threads:
             t.join()
-        print(C)
+        # print(C)
     elapsed_time = time.time() - start_time
     print(elapsed_time)
+    for i in range(len(C)):
+        for j in range(len(C[0])):
+            if C[i][j] != cResult[i][j]:
+                print("false ", C[i][j], cResult[i][j])
