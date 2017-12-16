@@ -57,7 +57,7 @@ if __name__ == "__main__":
     if len(B) != len(A[0]):
         print("wrong matrices")
     else:
-        proccessesAmount = 4
+        proccessesAmount = 8
         processes = []
         addFields = 0
         num = int(rows*columns/proccessesAmount)
