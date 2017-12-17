@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import math
 import numpy as np
+import scipy.integrate
 
 
 def drawParametricPortrait(k2, k3, k3m, n):
@@ -144,10 +145,11 @@ def getXcYc(x, k1m, k3, k3m, k2, n):
 
 
 def drawT(k1m, k2, k3, k3m, n):
+    x = np.linspace(0, 0.9, 1000)
     y = [0.0] * n
     z = [0.0] * n
     k1 = [0.0] * n
-    k1s1 = 0.114674783482
+    k1s1 = 0.139
     B = [0.0] * n
     disk = [0.0] * n
     dks = [0.0] * n
@@ -167,7 +169,7 @@ def drawT(k1m, k2, k3, k3m, n):
     D1 = 17
     D2 = 2
     DD = D1 * D2
-    L = 50
+    L = 1000
     is1 = 0
     j4 = 0
     i = 0
@@ -191,7 +193,6 @@ def drawT(k1m, k2, k3, k3m, n):
         nn2.append(math.sqrt(h2[is1]) * L / math.pi)
         k1s.append(k1[i])
         is1 += 1
-    find = 0
     for i in range(1, n):
         y[i] = (1 - x[i]) * alk
         z[i] = 1 - x[i] - y[i]
@@ -221,11 +222,9 @@ def drawT(k1m, k2, k3, k3m, n):
             A22S.append(a22)
             SPS.append(sp[i])
             DETS.append(det[i])
-        # if find == 0 and a11*a22 < 0 and (k1[i]>=0.112 or k1[i]<=0.14):
-        #     find = 1
-        #     print(k1[i])
 
-    # figure, axes = plt.subplots()
+    figure, axes = plt.subplots()
+
     # axes.set_title("Turing Bifurcation")
     # plt.xlabel("k1")
     # plt.ylabel("k^2")
@@ -248,23 +247,84 @@ def drawT(k1m, k2, k3, k3m, n):
         nn[i] = math.sqrt(h[i])*L/math.pi
         S_B[i] = S_A - h[i] * (D1+D2)
         delta_B[i] = delta_A - (A11*D2 + A22*D1) * h[i] + DD*h[i]**2
-        # gam1[i] = 0.5*(S_B[i]+math.sqrt(S_B[i]**2-4*delta_B[i]))
-        # gam2[i] = 0.5 * (S_B[i] -math.sqrt(S_B[i] ** 2- 4 * delta_B[i]))
+        d = S_B[i]**2-4*delta_B[i]
+        if abs(d) < 0.001:
+            d = 0
+        gam1[i] = 0.5*(S_B[i]+math.sqrt(d))
+        gam2[i] = 0.5 * (S_B[i] -math.sqrt(d))
     Dis = (A11*D2+A22*D1)**2 - 4*delta_A*D1*D2
-    print(Dis)
-    # h11 = ((A11*D2+A22*D1) + math.sqrt(Dis))/(2*DD)
-    # h22 = ((A11*D2+A22*D1) - math.sqrt(Dis))/(2*DD)
-    # nh1 = math.sqrt(h11)*L/math.pi
-    # nh2 = math.sqrt(abs(h22))*L/math.pi
-    axes.set_title("Determinant od matrix B")
-    plt.xlabel("k^2")
-    plt.ylabel("delta_B")
-    axes.plot(nn, delta_B, "r")
+    if abs(Dis)<0.001:
+        Dis = 0
+    h11 = ((A11*D2+A22*D1) + math.sqrt(Dis))/(2*DD)
+    h22 = ((A11*D2+A22*D1) - math.sqrt(Dis))/(2*DD)
+    nh1 = math.sqrt(h11)*L/math.pi
+    nh2 = math.sqrt(h22)*L/math.pi
+    # axes.set_title("Determinant of matrix B")
+    # plt.xlabel("k^2")
+    # plt.ylabel("delta_B")
+    # axes.plot(h, delta_B, "r")
+    # axes.plot(h11, 0, "ob")
+    # axes.plot(h22, 0, "ob")
+    # print(math.pi/nh1)
+
+    # axes.set_title("Eigenvalues of matrix B")
+    # plt.xlabel("n")
+    # plt.ylabel("delta_B")
+    # axes.plot(nn, gam1, "r")
+    # axes.plot(nn, gam2, "r")
     # axes.plot(nh1, 0, "ob")
     # axes.plot(nh2, 0, "ob")
 
+    # численное интегрирование:
+    L=120
+    xs = XS[j4]
+    ys = YS[j4]
+    nw = 6
+    x = np.linspace(0, L, 500)
+    dx = L/500
+    t = np.linspace(0, 10, 200)
+    y = []
+    i1 = 0
+    for i in range(1000):
+        if i1%2 == 0:
+            y.append(xs + 0.1*math.cos(math.pi*nw*x[i%500]/L))
+        else:
+            y.append(ys)
+        i1+=1
+    result = scipy.integrate.odeint(solve, y, t, args=(k11, k1m, k2, k3, k3m, D1, D2, dx))
+    # print(len(result[0]))#1000
+    # print(len(result))#200
+
+    #y1
+    axes.plot(x, result[199][::2], 'r')
+    #y2
+    axes.plot(x, result[199][1::2], 'b')
+
     plt.grid(True)
     plt.show()
+
+
+def f1(y1, y2, k1, km1, k2):
+    return k1*(1-y1-y2)-km1*y1-k2*y1*(1-y1-y2)**2
+
+
+def f2(y1, y2, k3, km3):
+    return k3*(1-y1-y2)**2 - km3*y2**2
+
+
+def solve(y, t, k1, km1, k2, k3, k3m, D1, D2, dx):
+    u = y[::2]
+    v = y[1::2]
+    dydt = np.empty_like(y)
+    dudt = dydt[::2]
+    dvdt = dydt[1::2]
+    dudt[0] = f1(u[0], v[0], k1, km1, k2) + D1 * (-2.0 * u[0] + 2.0 * u[1]) / dx ** 2
+    dudt[1:-1] = f1(u[1:-1], v[1:-1], k1, km1, k2) + D1 * np.diff(u, 2) / dx ** 2
+    dudt[-1] = f1(u[-1], v[-1], k1, km1, k2) + D1 * (- 2.0 * u[-1] + 2.0 * u[-2]) / dx ** 2
+    dvdt[0] = f2(u[0], v[0], k3, k3m) + D2 * (-2.0 * v[0] + 2.0 * v[1]) / dx ** 2
+    dvdt[1:-1] = f2(u[1:-1], v[1:-1], k3, k3m) + D2 * np.diff(v, 2) / dx ** 2
+    dvdt[-1] = f2(u[-1], v[-1], k3, k3m) + D2 * (-2.0 * v[-1] + 2.0 * v[-2]) / dx ** 2
+    return dydt
 
 
 if __name__ == "__main__":
@@ -272,7 +332,7 @@ if __name__ == "__main__":
     k2 = 1.05
     k3m = 0.002
     k3 = 0.0032
-    x = np.linspace(0, 0.999, 1000)
+    x = np.linspace(0, 0.9, 1000)
     n = len(x)
     sp = [0.0] * 1000
     det = [0.0] * 1000
