@@ -112,33 +112,31 @@ def getXcYc(x, k1m, k3, k3m, k2, n):
             k1s2.append(k1[i])
             j3 += 1
     figure, axes = plt.subplots()
-    plt.xlabel("k1")
-    plt.ylabel("x,y")
-    axes.plot(k1, x, 'r')
-    axes.plot(k1, y, 'b')
-    for i in range(len(xh)):
-        axes.plot(k1h[i], xh[i], 'oy')
-        axes.plot(k1h[i], yh[i], 'oy')
-    for i in range(len(xs1)):
-        axes.plot(k1s1[i], xs1[i], 'og')
-        axes.plot(k1s1[i], ys1[i], 'og')
-    for i in range(len(xs2)):
-        axes.plot(k1s2[i], xs2[i], 'og')
-        axes.plot(k1s2[i], ys2[i], 'og')
+    # plt.xlabel("k1")
+    # plt.ylabel("x,y")
+    # axes.plot(k1, x, 'r')
+    # axes.plot(k1, y, 'b')
+    # for i in range(len(xh)):
+    #     axes.plot(k1h[i], xh[i], 'oy')
+    #     axes.plot(k1h[i], yh[i], 'oy')
+    # for i in range(len(xs1)):
+    #     axes.plot(k1s1[i], xs1[i], 'og')
+    #     axes.plot(k1s1[i], ys1[i], 'og')
+    # for i in range(len(xs2)):
+    #     axes.plot(k1s2[i], xs2[i], 'og')
+    #     axes.plot(k1s2[i], ys2[i], 'og')
 
-    # # find a11*a22<0
-    # for i in range(n):
-    #     axes.plot(k1[i], a11i[i] * a22i[i], 'or')
-    #
-    # # find dmax
-    # dmax = 0
-    # i1 = 0
-    # for i in range(n):
-    #     if a11i[i]*a22i[i]<0:
-    #         if dmax<math.fabs(a11i[i])/math.fabs(a22i[i]):
-    #             dmax = math.fabs(a11i[i])/math.fabs(a22i[i])
-    #             i1 = i
-    # print(dmax, k1[i1])
+    # # find a11*a22<0s
+
+    # find dmax
+    dmax = 0
+    i1 = 0
+    for i in range(n):
+        if a11i[i]*a22i[i]<0 and a11i[i]+a22i[i]<0:
+            if dmax<abs(a11i[i])/abs(a22i[i]):
+                dmax = abs(a11i[i])/abs(a22i[i])
+                i1 = i
+    print(dmax, k1[i1])
 
     plt.grid(True)
     plt.show()
@@ -149,7 +147,7 @@ def drawT(k1m, k2, k3, k3m, n):
     y = [0.0] * n
     z = [0.0] * n
     k1 = [0.0] * n
-    k1s1 = 0.139
+    k1s1 = 0.116
     B = [0.0] * n
     disk = [0.0] * n
     dks = [0.0] * n
@@ -166,10 +164,10 @@ def drawT(k1m, k2, k3, k3m, n):
     A22S = []
     SPS = []
     DETS = []
-    D1 = 17
-    D2 = 2
+    D1 = 0.01
+    D2 = 1
     DD = D1 * D2
-    L = 1000
+    L = 50
     is1 = 0
     j4 = 0
     i = 0
@@ -248,12 +246,12 @@ def drawT(k1m, k2, k3, k3m, n):
         S_B[i] = S_A - h[i] * (D1+D2)
         delta_B[i] = delta_A - (A11*D2 + A22*D1) * h[i] + DD*h[i]**2
         d = S_B[i]**2-4*delta_B[i]
-        if abs(d) < 0.001:
+        if d < 0:
             d = 0
         gam1[i] = 0.5*(S_B[i]+math.sqrt(d))
         gam2[i] = 0.5 * (S_B[i] -math.sqrt(d))
     Dis = (A11*D2+A22*D1)**2 - 4*delta_A*D1*D2
-    if abs(Dis)<0.001:
+    if Dis<0:
         Dis = 0
     h11 = ((A11*D2+A22*D1) + math.sqrt(Dis))/(2*DD)
     h22 = ((A11*D2+A22*D1) - math.sqrt(Dis))/(2*DD)
@@ -265,7 +263,7 @@ def drawT(k1m, k2, k3, k3m, n):
     # axes.plot(h, delta_B, "r")
     # axes.plot(h11, 0, "ob")
     # axes.plot(h22, 0, "ob")
-    # print(math.pi/nh1)
+    # print(math.pi/math.sqrt(h11))
 
     # axes.set_title("Eigenvalues of matrix B")
     # plt.xlabel("n")
@@ -276,10 +274,14 @@ def drawT(k1m, k2, k3, k3m, n):
     # axes.plot(nh2, 0, "ob")
 
     # численное интегрирование:
-    L=120
+    L=70
+
+    # # неуст. гармоники
+    print(L*math.sqrt(h11)/math.pi, L*math.sqrt(h22)/math.pi)
+
     xs = XS[j4]
     ys = YS[j4]
-    nw = 6
+    nw = 10
     x = np.linspace(0, L, 500)
     dx = L/500
     t = np.linspace(0, 10, 200)
@@ -292,13 +294,14 @@ def drawT(k1m, k2, k3, k3m, n):
             y.append(ys)
         i1+=1
     result = scipy.integrate.odeint(solve, y, t, args=(k11, k1m, k2, k3, k3m, D1, D2, dx))
+
     # print(len(result[0]))#1000
     # print(len(result))#200
 
     #y1
     axes.plot(x, result[199][::2], 'r')
     #y2
-    axes.plot(x, result[199][1::2], 'b')
+    axes.plot(x, result[100][1::2], 'b')
 
     plt.grid(True)
     plt.show()

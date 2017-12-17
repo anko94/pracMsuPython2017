@@ -146,34 +146,34 @@ if __name__ == "__main__":
         Det[i] = a11 * a22 - a12 * a21
         Sp[i] = a11 + a22
 
-    #построение фазового портрета
-    figure, axes = plt.subplots()
-    axes.set_title("Parametric Portrait")
-    plt.xlabel("km1")
-    plt.ylabel("k1")
-    axes.plot(k1m, k1, 'r')
-    axes.plot(K1m, K1, 'b')
-    plt.show()
+    # #построение фазового портрета
+    # figure, axes = plt.subplots()
+    # axes.set_title("Parametric Portrait")
+    # plt.xlabel("km1")
+    # plt.ylabel("k1")
+    # axes.plot(k1m, k1, 'r')
+    # axes.plot(K1m, K1, 'b')
+    # plt.show()
 
     #odeint
     r = [0, 0]
     t = nm.linspace(0, 10000, 1000000)
-    result = scipy.integrate.odeint(scipySolve, r, t, args=(0.15, 0.01, k2, k3, k3m))
+    result = scipy.integrate.odeint(scipySolve, r, t, args=(0.119, 0.008, k2, k3, k3m))
     x11 = []
     y11 = []
     for i in range(len(result)):
         x11.append(result[i][0])
         y11.append(result[i][1])
 
-    # figure, axes = plt.subplots()
-    # plt.xlabel("x")
-    # plt.ylabel("y")
-    # axes.plot(x11, y11, 'r')
-    # plt.show()
-    #
-    # figure, axes = plt.subplots()
-    # axes.plot(t, x11, 'r')
-    # axes.plot(t, y11, 'b')
-    # plt.show()
+    figure, axes = plt.subplots()
+    plt.xlabel("x")
+    plt.ylabel("y")
+    axes.plot(x11, y11, 'r')
+    plt.show()
+
+    figure, axes = plt.subplots()
+    axes.plot(t, x11, 'r')
+    axes.plot(t, y11, 'b')
+    plt.show()
 
     # построение фазового портрета
