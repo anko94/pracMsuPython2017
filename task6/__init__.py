@@ -147,7 +147,7 @@ def drawT(k1m, k2, k3, k3m, n):
     y = [0.0] * n
     z = [0.0] * n
     k1 = [0.0] * n
-    k1s1 = 0.14
+    k1s1 = 0.114674783482
     B = [0.0] * n
     disk = [0.0] * n
     dks = [0.0] * n
@@ -156,6 +156,7 @@ def drawT(k1m, k2, k3, k3m, n):
     nn1 = []
     nn2 = []
     k1s = []
+    k1f = []
     K1S = []
     XS = []
     YS = []
@@ -220,15 +221,48 @@ def drawT(k1m, k2, k3, k3m, n):
             A22S.append(a22)
             SPS.append(sp[i])
             DETS.append(det[i])
-        if find == 0 and a11*a22 < 0 and (k1[i]<0.115 or k1[i]>0.145):
-            find = 1
-            print(k1[i])
-    figure, axes = plt.subplots()
-    axes.set_title("Turing Bifurcation")
-    plt.xlabel("k1")
-    plt.ylabel("k^2")
-    axes.plot(k1s, h1, 'or')
-    axes.plot(k1s, h2, 'ob')
+        # if find == 0 and a11*a22 < 0 and (k1[i]>=0.112 or k1[i]<=0.14):
+        #     find = 1
+        #     print(k1[i])
+
+    # figure, axes = plt.subplots()
+    # axes.set_title("Turing Bifurcation")
+    # plt.xlabel("k1")
+    # plt.ylabel("k^2")
+    # axes.plot(k1s, h1, 'or')
+    # axes.plot(k1s, h2, 'ob')
+
+    j4 = 0
+    k11 = K1S[j4]
+    A11 = A11S[j4]
+    A22 = A22S[j4]
+    S_A = SPS[j4]
+    delta_A = DETS[j4]
+    h = np.linspace(0, 60, 6000)
+    nn = [0.0] * len(h)
+    S_B = [0.0] * len(h)
+    delta_B = [0.0] * len(h)
+    gam1 = [0.0] * len(h)
+    gam2 = [0.0] * len(h)
+    for i in range(len(h)):
+        nn[i] = math.sqrt(h[i])*L/math.pi
+        S_B[i] = S_A - h[i] * (D1+D2)
+        delta_B[i] = delta_A - (A11*D2 + A22*D1) * h[i] + DD*h[i]**2
+        # gam1[i] = 0.5*(S_B[i]+math.sqrt(S_B[i]**2-4*delta_B[i]))
+        # gam2[i] = 0.5 * (S_B[i] -math.sqrt(S_B[i] ** 2- 4 * delta_B[i]))
+    Dis = (A11*D2+A22*D1)**2 - 4*delta_A*D1*D2
+    print(Dis)
+    # h11 = ((A11*D2+A22*D1) + math.sqrt(Dis))/(2*DD)
+    # h22 = ((A11*D2+A22*D1) - math.sqrt(Dis))/(2*DD)
+    # nh1 = math.sqrt(h11)*L/math.pi
+    # nh2 = math.sqrt(abs(h22))*L/math.pi
+    axes.set_title("Determinant od matrix B")
+    plt.xlabel("k^2")
+    plt.ylabel("delta_B")
+    axes.plot(nn, delta_B, "r")
+    # axes.plot(nh1, 0, "ob")
+    # axes.plot(nh2, 0, "ob")
+
     plt.grid(True)
     plt.show()
 
