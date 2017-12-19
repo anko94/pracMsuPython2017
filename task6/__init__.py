@@ -128,15 +128,15 @@ def getXcYc(x, k1m, k3, k3m, k2, n):
 
     # # find a11*a22<0s
 
-    # find dmax
-    dmax = 0
-    i1 = 0
-    for i in range(n):
-        if a11i[i]*a22i[i]<0 and a11i[i]+a22i[i]<0:
-            if dmax<abs(a11i[i])/abs(a22i[i]):
-                dmax = abs(a11i[i])/abs(a22i[i])
-                i1 = i
-    print(dmax, k1[i1])
+    # # find dmax
+    # dmax = 0
+    # i1 = 0
+    # for i in range(n):
+    #     if a11i[i]*a22i[i]<0 and a11i[i]+a22i[i]<0:
+    #         if dmax<abs(a11i[i])/abs(a22i[i]):
+    #             dmax = abs(a11i[i])/abs(a22i[i])
+    #             i1 = i
+    # print(dmax, k1[i1])
 
     plt.grid(True)
     plt.show()
@@ -281,7 +281,7 @@ def drawT(k1m, k2, k3, k3m, n):
 
     xs = XS[j4]
     ys = YS[j4]
-    nw = 10
+    nw = 3
     x = np.linspace(0, L, 500)
     dx = L/500
     t = np.linspace(0, 10, 200)
@@ -301,7 +301,7 @@ def drawT(k1m, k2, k3, k3m, n):
     #y1
     axes.plot(x, result[199][::2], 'r')
     #y2
-    axes.plot(x, result[100][1::2], 'b')
+    axes.plot(x, result[199][1::2], 'b')
 
     plt.grid(True)
     plt.show()

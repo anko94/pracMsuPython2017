@@ -31,10 +31,10 @@ def getColumnJ(B, j):
 if __name__ == "__main__":
     A = []
     B = []
-    for i in range(50):
+    for i in range(200):
         E = []
         E1 = []
-        for j in range(50):
+        for j in range(200):
             E.append(randint(-j, j))
             E1.append(randint(-j, j))
         A.append(E)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     if len(B) != len(A[0]):
         print("wrong matrices")
     else:
-        proccessesAmount = 8
+        proccessesAmount = 200
         processes = []
         addFields = 0
         num = int(rows*columns/proccessesAmount)

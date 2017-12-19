@@ -1,5 +1,6 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
+from OpenGL.GLU import *
 import math
 
 
@@ -32,37 +33,39 @@ def draw():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glEnable(GL_DEPTH_TEST)
 
-    for i in range(6):
-        glBegin(GL_POLYGON)
-        glColor3f(pointcolor[i][0], pointcolor[i][1], pointcolor[i][2])
-        glVertex3f(pointdata[i*4][0], pointdata[i*4][1], pointdata[i*4][2])
-        glVertex3f(pointdata[i*4+1][0], pointdata[i*4+1][1], pointdata[i*4+1][2])
-        glVertex3f(pointdata[i*4+2][0], pointdata[i*4+2][1], pointdata[i*4+2][2])
-        glVertex3f(pointdata[i*4+3][0], pointdata[i*4+3][1], pointdata[i*4+3][2])
-        glEnd()
+    glEnableClientState(GL_VERTEX_ARRAY)
+    glEnableClientState(GL_COLOR_ARRAY)
+
+    glVertexPointer(3, GL_FLOAT, 0, pointdata)
+    glColorPointer(3, GL_FLOAT, 0, pointcolor)
+    glDrawArrays(GL_TRIANGLES, 0, 36)
 
     # cone's pinnacle
-    glBegin(GL_TRIANGLE_FAN)
-    glColor3f(1, 1, 0)
-    glVertex3f(conepointdata[0][0], conepointdata[0][1], conepointdata[0][2])
+    pointdata2 = []
+    colordata2 = []
+    colordata2.append([1, 1, 0])
+    pointdata2.append([conepointdata[0][0], conepointdata[0][1], conepointdata[0][2]])
     for angle in range(361):
-        x = math.sin(math.radians(angle))
-        y = math.cos(math.radians(angle))
-        glColor3f(1,1,0)
-        glVertex2f(x, y)
-    glEnd()
+        pointdata2.append([math.sin(math.radians(angle)), math.cos(math.radians(angle)), 0])
+        colordata2.append([1, 1, 0])
+    glVertexPointer(3, GL_FLOAT, 0, pointdata2)
+    glColorPointer(3, GL_FLOAT, 0, colordata2)
+    glDrawArrays(GL_TRIANGLE_FAN, 0, len(pointdata2))
 
     # bottom of cone
-    glBegin(GL_TRIANGLE_FAN)
-    glColor3f(1, 0, 0)
-    glVertex3f(conepointdata[1][0], conepointdata[1][1], conepointdata[1][2])
+    pointdata2 = []
+    colordata2 = []
+    colordata2.append([1, 0, 0])
+    pointdata2.append([conepointdata[1][0], conepointdata[1][1], conepointdata[1][2]])
     for angle in range(361):
-        x = math.sin(math.radians(angle))
-        y = math.cos(math.radians(angle))
-        glColor3f(1, 0, 0)
-        glVertex2f(x, y)
-    glEnd()
+        pointdata2.append([math.sin(math.radians(angle)), math.cos(math.radians(angle)), 0])
+        colordata2.append([1, 0, 0])
+    glVertexPointer(3, GL_FLOAT, 0, pointdata2)
+    glColorPointer(3, GL_FLOAT, 0, colordata2)
+    glDrawArrays(GL_TRIANGLE_FAN, 0, len(pointdata2))
 
+    glDisableClientState(GL_VERTEX_ARRAY)
+    glDisableClientState(GL_COLOR_ARRAY)
     glutSwapBuffers()
 
 
@@ -120,10 +123,46 @@ if __name__ == '__main__':
 
     pointcolor = [
                   [0, 1.0, 0],
+        [0, 1.0, 0],
+        [0, 1.0, 0],
+        [0, 1.0, 0],
+        [0, 1.0, 0],
+        [0, 1.0, 0],
                   [1.0, 0, 0],
+        [1.0, 0, 0],
+        [1.0, 0, 0],
+        [1.0, 0, 0],
+        [1.0, 0, 0],
+        [1.0, 0, 0],
                   [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
                   [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
                   [1.0, 1.0, 0.0],
-                  [1.0, 1.0, 0.0]
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+                  [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0]
                   ]
+
+    for i in range(len(pointdata)):
+        pointdata[i][0] /= 1.1
+        pointdata[i][1] /= 1.1
+        pointdata[i][2] /= 1.1
+
     glutMainLoop()
