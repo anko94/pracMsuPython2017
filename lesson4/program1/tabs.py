@@ -89,6 +89,7 @@ class Tabs:
         self.drawCircles(x, y, n)
 
     def drawCircles(self, x, y, n):
+        self.mo.getAxes().clear()
         r = 0
         color = (1,1,1)
         for i in range(int(len(x)/n)):
@@ -121,9 +122,25 @@ class Tabs:
                                                    self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
         self.drawCircles(x, y, n)
 
-    def verletCython(self):
-        self.solvs.verletCython(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
+    def verletCython1(self):
+        x, y, n = self.solvs.verletCython1(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                 self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
+        self.drawCircles(x, y, n)
+
+    def verletCython2(self):
+        x, y, n = self.solvs.verletCython2(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
+                                self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
+        self.drawCircles(x, y, n)
+
+    def verletCython3(self):
+        x, y, n = self.solvs.verletCython3(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
+                                self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
+        self.drawCircles(x, y, n)
+
+    def verletCython4(self):
+        x, y, n = self.solvs.verletCython4(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
+                                self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
+        self.drawCircles(x, y, n)
 
     def verletOpencl(self):
         self.solvs.verletOpencl(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
@@ -188,15 +205,21 @@ class Tabs:
             ("verlet", "2"),
             ("verlet-threading", "3"),
             ("verlet-multiprocessing", "4"),
-            ("verlet-cython", "5"),
-            ("verlet-opencl", "6")
+            ("verlet-cython1", "5"),
+            ("verlet-cython2", "6"),
+            ("verlet-cython3", "7"),
+            ("verlet-cython4", "8"),
+            ("verlet-opencl", "9")
         ]
         options = {1: self.scipy,
                    2: self.verlet,
                    3: self.verletThreading,
                    4: self.verletMultipricessing,
-                   5: self.verletCython,
-                   6: self.verletOpencl,
+                   5: self.verletCython1,
+                   6: self.verletCython2,
+                   7: self.verletCython3,
+                   8: self.verletCython4,
+                   9: self.verletOpencl,
         }
         v = tkinter.StringVar()
         v.set("L")  # initialize

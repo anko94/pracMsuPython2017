@@ -4,6 +4,10 @@ import numpy as np
 import scipy.integrate
 import threading
 import multiprocessing as mp
+import time
+import ctypes
+
+from Cython.Distutils import Extension
 
 
 class Solvers:
@@ -353,8 +357,188 @@ class Solvers:
         self.countError(nStr, mStr, xyStr, vStr, x1, y1, n)
         return x1, y1, n
 
-    def verletCython(self, nStr, mStr, xyStr, vStr):
-        print("verlet-cython")
+    def verletCython1(self, nStr, mStr, xyStr, vStr):
+        start_time = time.time()
+        init = sum([list(map(float, xyStr)),
+                    list(map(float, vStr))], [])
+        m = list(map(float, mStr))
+        n = int(nStr)
+        G = 6.674e-11
+        T = 10000000
+        Tn = 100
+        t = np.linspace(0, T, Tn)
+        dt = T / Tn
+        x = np.zeros(n * len(t))
+        y = np.zeros(n * len(t))
+        for i in range(n):
+            x[i] = init[i * 2]
+            y[i] = init[i * 2 + 1]
+        vx = np.zeros(n * len(t))
+        vy = np.zeros(n * len(t))
+        for i in range(n):
+            vx[i] = init[i * 2 + 2 * n]
+            vy[i] = init[i * 2 + 1 + 2 * n]
+        m1 = np.array(m)
+        axm = np.zeros(n * len(t))
+        aym = np.zeros(n * len(t))
+
+        import pyximport
+        pyximport.install(setup_args={'include_dirs': np.get_include()})
+        import solver_cython1
+        result = solver_cython1.solver(n, G, dt, m1, t, x, y, vx, vy, axm, aym)
+        print(time.time() - start_time)
+        # # x
+        # print(result[0])
+        # # y
+        # print(result[1])
+        # # vx
+        # print(result[2])
+        # # vy
+        # print(result[3])
+        # # axm
+        # print(result[4])
+        # # aym
+        # print(result[5])
+        self.countError(nStr, mStr, xyStr, vStr, result[0], result[1], n)
+        return result[0], result[1], n
+
+    def verletCython2(self, nStr, mStr, xyStr, vStr):
+        start_time = time.time()
+        init = sum([list(map(float, xyStr)),
+                    list(map(float, vStr))], [])
+        m = list(map(float, mStr))
+        n = int(nStr)
+        G = 6.674e-11
+        T = 10000000
+        Tn = 100
+        t = np.linspace(0, T, Tn)
+        dt = T / Tn
+        x = np.zeros(n * len(t))
+        y = np.zeros(n * len(t))
+        for i in range(n):
+            x[i] = init[i * 2]
+            y[i] = init[i * 2 + 1]
+        vx = np.zeros(n * len(t))
+        vy = np.zeros(n * len(t))
+        for i in range(n):
+            vx[i] = init[i * 2 + 2 * n]
+            vy[i] = init[i * 2 + 1 + 2 * n]
+        m1 = np.array(m)
+        axm = np.zeros(n * len(t))
+        aym = np.zeros(n * len(t))
+
+        import pyximport
+        pyximport.install(setup_args={'include_dirs': np.get_include(), 'ext_modules': [Extension("solver_cython2", ["solver_cython2.pyx"],
+                                                                                         extra_compile_args = ["-O3", "-fopenmp"],
+                                                                                         extra_link_args=["-fopenmp"])]})
+        import solver_cython2
+        result = solver_cython2.solver(n, G, dt, m1, t, x, y, vx, vy, axm, aym)
+        print(time.time() - start_time)
+        # # x
+        # print(result[0])
+        # # y
+        # print(result[1])
+        # # vx
+        # print(result[2])
+        # # vy
+        # print(result[3])
+        # # axm
+        # print(result[4])
+        # # aym
+        # print(result[5])
+        self.countError(nStr, mStr, xyStr, vStr, result[0], result[1], n)
+        return result[0], result[1], n
+
+    def verletCython3(self, nStr, mStr, xyStr, vStr):
+        start_time = time.time()
+        init = sum([list(map(float, xyStr)),
+                    list(map(float, vStr))], [])
+        m = list(map(float, mStr))
+        n = int(nStr)
+        G = 6.674e-11
+        T = 10000000
+        Tn = 100
+        t = np.linspace(0, T, Tn)
+        dt = T / Tn
+        x = np.zeros(n * len(t))
+        y = np.zeros(n * len(t))
+        for i in range(n):
+            x[i] = init[i * 2]
+            y[i] = init[i * 2 + 1]
+        vx = np.zeros(n * len(t))
+        vy = np.zeros(n * len(t))
+        for i in range(n):
+            vx[i] = init[i * 2 + 2 * n]
+            vy[i] = init[i * 2 + 1 + 2 * n]
+        m1 = np.array(m)
+        axm = np.zeros(n * len(t))
+        aym = np.zeros(n * len(t))
+        import pyximport
+        pyximport.install(setup_args={'include_dirs': np.get_include()})
+        import solver_cython3
+        result = solver_cython3.solver(n, G, dt, m1, t, x, y, vx, vy, axm, aym)
+        print(time.time() - start_time)
+        # # x
+        # print(result[0])
+        # # y
+        # print(result[1])
+        # # vx
+        # print(result[2])
+        # # vy
+        # print(result[3])
+        # # axm
+        # print(result[4])
+        # # aym
+        # print(result[5])
+        self.countError(nStr, mStr, xyStr, vStr, result[0], result[1], n)
+        return result[0], result[1], n
+
+    def verletCython4(self, nStr, mStr, xyStr, vStr):
+        start_time = time.time()
+        init = sum([list(map(float, xyStr)),
+                    list(map(float, vStr))], [])
+        m = list(map(float, mStr))
+        n = int(nStr)
+        G = 6.674e-11
+        T = 10000000
+        Tn = 100
+        t = np.linspace(0, T, Tn)
+        dt = T / Tn
+        x = np.zeros(n * len(t))
+        y = np.zeros(n * len(t))
+        for i in range(n):
+            x[i] = init[i * 2]
+            y[i] = init[i * 2 + 1]
+        vx = np.zeros(n * len(t))
+        vy = np.zeros(n * len(t))
+        for i in range(n):
+            vx[i] = init[i * 2 + 2 * n]
+            vy[i] = init[i * 2 + 1 + 2 * n]
+        m1 = np.array(m)
+        axm = np.zeros(n * len(t))
+        aym = np.zeros(n * len(t))
+        import pyximport
+        pyximport.install(setup_args={'include_dirs': np.get_include(),
+                                      'ext_modules': [Extension("solver_cython4", ["solver_cython4.pyx"],
+                                                                extra_compile_args=["-O3", "-fopenmp"],
+                                                                extra_link_args=["-fopenmp"])]})
+        import solver_cython4
+        result = solver_cython4.solver(n, G, dt, m1, t, x, y, vx, vy, axm, aym)
+        print(time.time() - start_time)
+        # # x
+        # print(result[0])
+        # # y
+        # print(result[1])
+        # # vx
+        # print(result[2])
+        # # vy
+        # print(result[3])
+        # # axm
+        # print(result[4])
+        # # aym
+        # print(result[5])
+        self.countError(nStr, mStr, xyStr, vStr, result[0], result[1], n)
+        return result[0], result[1], n
 
     def verletOpencl(self, nStr, mStr, xyStr, vStr):
         print("verlet-opencl")

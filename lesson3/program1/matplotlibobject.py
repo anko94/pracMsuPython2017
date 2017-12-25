@@ -5,7 +5,6 @@ matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-
 class MatplotlibObject():
     def getAxes(self):
         return self.axes
@@ -26,7 +25,6 @@ class MatplotlibObject():
         for i in range(len(circleList)):
             self.drawCircle(circleList[i][0], circleList[i][1], circleList[i][2])
         self.canvas.show()
-
 
     def scaleAxes(self, scale):
         xlim = self.axes.get_xlim()
