@@ -6,12 +6,16 @@ import threading
 import multiprocessing as mp
 import time
 import ctypes
-
+import pyopencl as cl
 from Cython.Distutils import Extension
 
+Tn = 10000
 
 class Solvers:
+
     def verlet(self, nStr, mStr, xyStr, vStr):
+        global Tn
+        start_time = time.time()
         #for example: x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, xyStr)),
                     list(map(float, vStr))], [])
@@ -19,7 +23,6 @@ class Solvers:
         n = int(nStr)
         G = 6.674e-11
         T = 10000000
-        Tn = 100
         t = np.linspace(0, T, Tn)
         dt = T/Tn
         x = []
@@ -43,15 +46,18 @@ class Solvers:
                     ay += m[f] * G * (y[f] - y[j]) / math.sqrt((x[f] - x[j])**2 + (y[f] - y[j])**2) ** 3
             axm.append(ax)
             aym.append(ay)
+
         for i in range(len(t)):
             if i != 0:
-                for j in range(n):
-                    x.append(x[(i - 1) * n + j] + vx[(i - 1) * n + j]*dt + 1.0/2*axm[(i-1)*n+j]*dt**2)
-                    y.append(y[(i - 1) * n + j] + vy[(i - 1) * n + j] * dt + 1.0 / 2 * aym[(i - 1) * n + j] * dt ** 2)
                 for j in range(n):
                     ax = 0
                     ay = 0
                     for f in range(n):
+                        if j == 0:
+                            x.append(x[(i - 1) * n + f] + vx[(i - 1) * n + f] * dt + 1.0 / 2 * axm[
+                                (i - 1) * n + f] * dt ** 2)
+                            y.append(y[(i - 1) * n + f] + vy[(i - 1) * n + f] * dt + 1.0 / 2 * aym[
+                                (i - 1) * n + f] * dt ** 2)
                         if f != j:
                             ax += m[f] * G * (x[i * n + f] - x[i * n + j]) /\
                                   math.sqrt((x[i * n + f] - x[i * n + j])**2 + (y[i * n + f] - y[i * n + j])**2) ** 3
@@ -61,12 +67,13 @@ class Solvers:
                     aym.append(ay)
                     vx.append(vx[(i - 1) * n + j] + 1.0 / 2 * dt * (axm[i * n + j] + axm[(i - 1) * n + j]))
                     vy.append(vy[(i - 1) * n + j] + 1.0 / 2 * dt * (aym[i * n + j] + aym[(i - 1) * n + j]))
-        print(len(x), x)
-        print(len(y), y)
-        print(len(vx), vx)
-        print(len(vy), vy)
-        print(len(axm), axm)
-        print(len(aym), aym)
+        print(time.time() - start_time)
+        # print(len(x), x)
+        # print(len(y), y)
+        # print(len(vx), vx)
+        # print(len(vy), vy)
+        # print(len(axm), axm)
+        # print(len(aym), aym)
         self.countError(nStr, mStr, xyStr, vStr, x, y, n)
         return x, y, n
 
@@ -98,10 +105,11 @@ class Solvers:
         return result
 
     def scipy(self, nStr, mStr, xyStr, vStr):
+        global Tn
+        start_time = time.time()
         # for example: m1, m2, m3, x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, xyStr)), list(map(float, vStr))], [])
         T = 10000000
-        Tn = 100
         t = np.linspace(0, T, Tn)
         n = int(nStr)
         result = scipy.integrate.odeint(self.scipySolve, init, t, args=(n,
@@ -117,10 +125,11 @@ class Solvers:
                 y.append(result[i][j * 2+1])
                 vx.append(result[i][j * 2+2*n])
                 vy.append(result[i][j * 2+1+2*n])
-        print(x)
-        print(y)
-        print(vx)
-        print(vy)
+        # print(x)
+        # print(y)
+        # print(vx)
+        # print(vy)
+        print(time.time() - start_time)
         return x, y, n
 
     class MyThread(threading.Thread):
@@ -200,6 +209,8 @@ class Solvers:
             self.vy.append(self.vy[(self.i - 1) * self.n + self.j] + 1.0 / 2 * self.dt * (self.aym[self.i * self.n + self.j] + self.aym[(self.i - 1) * self.n + self.j]))
 
     def verletThreading(self, nStr, mStr, xyStr, vStr):
+        global Tn
+        start_time = time.time()
         # for example: x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, xyStr)),
                     list(map(float, vStr))], [])
@@ -207,7 +218,6 @@ class Solvers:
         n = int(nStr)
         G = 6.674e-11
         T = 10000000
-        Tn = 100
         t = np.linspace(0, T, Tn)
         dt = T / Tn
         x = [] * n * 100
@@ -245,12 +255,13 @@ class Solvers:
                     thread.start()
                 for thr in threads:
                     thr.join()
-        print(len(x), x)
-        print(len(y), y)
-        print(len(vx), vx)
-        print(len(vy), vy)
-        print(len(axm), axm)
-        print(len(aym), aym)
+        # print(len(x), x)
+        # print(len(y), y)
+        # print(len(vx), vx)
+        # print(len(vy), vy)
+        # print(len(axm), axm)
+        # print(len(aym), aym)
+        print(time.time() - start_time)
         self.countError(nStr, mStr, xyStr, vStr, x, y, n)
         return x, y, n
 
@@ -285,6 +296,8 @@ class Solvers:
             vy[i * n + j] = (vy[(i - 1) * n + j] + 1.0 / 2 * dt * (
                 aym[i * n + j] + aym[(i - 1) * n + j]))
 
+        global Tn
+        start_time = time.time()
         # for example: x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), vx1(0), vy1(0), vx2(0), vy2(0), vx3(0), vy3(0)
         init = sum([list(map(float, xyStr)),
                     list(map(float, vStr))], [])
@@ -292,21 +305,20 @@ class Solvers:
         n = int(nStr)
         G = 6.674e-11
         T = 10000000
-        Tn = 100
         t = np.linspace(0, T, Tn)
         dt = T / Tn
-        x = mp.Array('d', range(n * 100))
-        y = mp.Array('d', range(n * 100))
+        x = mp.Array('d', range(n * Tn))
+        y = mp.Array('d', range(n * Tn))
         for i in range(n):
             x[i] = init[i * 2]
             y[i] = init[i * 2 + 1]
-        vx = mp.Array('d', range(n * 100))
-        vy = mp.Array('d', range(n * 100))
+        vx = mp.Array('d', range(n * Tn))
+        vy = mp.Array('d', range(n * Tn))
         for i in range(n):
             vx[i] = init[i * 2 + 2 * n]
             vy[i] = init[i * 2 + 1 + 2 * n]
-        axm = mp.Array('d', range(n * 100))
-        aym = mp.Array('d', range(n * 100))
+        axm = mp.Array('d', range(n * Tn))
+        aym = mp.Array('d', range(n * Tn))
         processes = []
         for j in range(n):
             process = mp.Process(target=work1, args=(n, j, m, G, x, axm, y, aym))
@@ -348,16 +360,18 @@ class Solvers:
         aym1 = []
         for i in range(len(aym)):
             aym1.append(aym[i])
-        print(len(x1), x1)
-        print(len(y1), y1)
-        print(len(vx1), vx1)
-        print(len(vy1), vy1)
-        print(len(axm1), axm1)
-        print(len(aym1), aym1)
+        # print(len(x1), x1)
+        # print(len(y1), y1)
+        # print(len(vx1), vx1)
+        # print(len(vy1), vy1)
+        # print(len(axm1), axm1)
+        # print(len(aym1), aym1)
+        print(time.time() - start_time)
         self.countError(nStr, mStr, xyStr, vStr, x1, y1, n)
         return x1, y1, n
 
     def verletCython1(self, nStr, mStr, xyStr, vStr):
+        global Tn
         start_time = time.time()
         init = sum([list(map(float, xyStr)),
                     list(map(float, vStr))], [])
@@ -365,7 +379,6 @@ class Solvers:
         n = int(nStr)
         G = 6.674e-11
         T = 10000000
-        Tn = 100
         t = np.linspace(0, T, Tn)
         dt = T / Tn
         x = np.zeros(n * len(t))
@@ -403,6 +416,7 @@ class Solvers:
         return result[0], result[1], n
 
     def verletCython2(self, nStr, mStr, xyStr, vStr):
+        global Tn
         start_time = time.time()
         init = sum([list(map(float, xyStr)),
                     list(map(float, vStr))], [])
@@ -410,7 +424,6 @@ class Solvers:
         n = int(nStr)
         G = 6.674e-11
         T = 10000000
-        Tn = 100
         t = np.linspace(0, T, Tn)
         dt = T / Tn
         x = np.zeros(n * len(t))
@@ -450,6 +463,7 @@ class Solvers:
         return result[0], result[1], n
 
     def verletCython3(self, nStr, mStr, xyStr, vStr):
+        global Tn
         start_time = time.time()
         init = sum([list(map(float, xyStr)),
                     list(map(float, vStr))], [])
@@ -457,7 +471,6 @@ class Solvers:
         n = int(nStr)
         G = 6.674e-11
         T = 10000000
-        Tn = 100
         t = np.linspace(0, T, Tn)
         dt = T / Tn
         x = np.zeros(n * len(t))
@@ -494,6 +507,7 @@ class Solvers:
         return result[0], result[1], n
 
     def verletCython4(self, nStr, mStr, xyStr, vStr):
+        global Tn
         start_time = time.time()
         init = sum([list(map(float, xyStr)),
                     list(map(float, vStr))], [])
@@ -501,7 +515,6 @@ class Solvers:
         n = int(nStr)
         G = 6.674e-11
         T = 10000000
-        Tn = 100
         t = np.linspace(0, T, Tn)
         dt = T / Tn
         x = np.zeros(n * len(t))
@@ -541,7 +554,104 @@ class Solvers:
         return result[0], result[1], n
 
     def verletOpencl(self, nStr, mStr, xyStr, vStr):
-        print("verlet-opencl")
+        global Tn
+        start_time = time.time()
+        init = sum([list(map(float, xyStr)),
+                    list(map(float, vStr))], [])
+        m = list(map(float, mStr))
+        n = int(nStr)
+        G = 6.674e-11
+        T = 10000000
+        t = np.linspace(0, T, Tn)
+        dt = T / Tn
+        x = np.zeros(n * len(t))
+        y = np.zeros(n * len(t))
+        for i in range(n):
+            x[i] = init[i * 2]
+            y[i] = init[i * 2 + 1]
+        vx = np.zeros(n * len(t))
+        vy = np.zeros(n * len(t))
+        for i in range(n):
+            vx[i] = init[i * 2 + 2 * n]
+            vy[i] = init[i * 2 + 1 + 2 * n]
+        m1 = np.array(m)
+        axm = np.zeros(n * len(t))
+        aym = np.zeros(n * len(t))
+        for j in range(n):
+            ax = 0
+            ay = 0
+            for f in range(n):
+                if f != j:
+                    ax += m[f] * G * (x[f] - x[j]) / math.sqrt((x[f] - x[j]) ** 2 + (y[f] - y[j]) ** 2) ** 3
+                    ay += m[f] * G * (y[f] - y[j]) / math.sqrt((x[f] - x[j]) ** 2 + (y[f] - y[j]) ** 2) ** 3
+            axm[j] = ax
+            aym[j] = ay
+
+        source = """
+        kernel void compute(int n, int tn, double G, double dt, __global double *m, __global double *x, __global double *y, __global double *vx
+        , __global double *vy, __global double *axm, __global double *aym){
+            double ax = 0;
+            double ay = 0;
+            for(int i = 1; i<tn; i++) {
+                for(int j = 0; j<n; j++) {
+                    ax = 0;
+                    ay = 0;
+                    for(int f = 0; f<n; f++) {
+                        if(j == 0) {
+                            x[i * n + f] = x[(i - 1) * n + f] + vx[(i - 1) * n + f] * dt + 1.0 / 2 * axm[
+                                (i - 1) * n + f] * pow(dt, 2);
+                            y[i * n + f] = y[(i - 1) * n + f] + vy[(i - 1) * n + f] * dt + 1.0 / 2 * aym[
+                                (i - 1) * n + f] * pow(dt, 2);
+                        }
+                        if(f != j) {
+                            ax += m[f] * G * (x[i * n + f] - x[i * n + j]) /
+                                  pow(sqrt(pow(x[i * n + f] - x[i * n + j], 2) + pow(y[i * n + f] - y[i * n + j], 2)), 3);
+                            ay += m[f] * G * (y[i * n + f] - y[i * n + j]) /
+                                  pow(sqrt(pow(x[i * n + f] - x[i * n + j], 2) + pow(y[i * n + f] - y[i * n + j], 2)), 3);
+                        }       
+                    }
+                    axm[i * n + j] = ax;
+                    aym[i * n + j] = ay;
+                    vx[i * n + j] = vx[(i - 1) * n + j] + 1.0 / 2 * dt * (axm[i * n + j] + axm[(i - 1) * n + j]);
+                    vy[i * n + j] = vy[(i - 1) * n + j] + 1.0 / 2 * dt * (aym[i * n + j] + aym[(i - 1) * n + j]);  
+                }
+            }
+        }"""
+        #Initialization phase:
+        ctx = cl.create_some_context()
+        queue = cl.CommandQueue(ctx)
+        #Create mem object:
+        xbuf = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.COPY_HOST_PTR, hostbuf=x)
+        ybuf = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.COPY_HOST_PTR, hostbuf=y)
+        vxbuf = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.COPY_HOST_PTR, hostbuf=vx)
+        vybuf = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.COPY_HOST_PTR, hostbuf=vy)
+        axmbuf = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.COPY_HOST_PTR, hostbuf=axm)
+        aymbuf = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.COPY_HOST_PTR, hostbuf=aym)
+        mbuf = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.COPY_HOST_PTR, hostbuf=m1)
+        lengtht = np.int32(len(t))
+        lengthn = np.int32(n)
+        Gb = np.double(G)
+        dtb = np.double(dt)
+        #Compilation phase
+        prg = cl.Program(ctx, source).build()
+        #Execution phase:
+        prg.compute(queue, (1,), None, lengthn, lengtht, Gb, dtb, mbuf, xbuf, ybuf, vxbuf, vybuf, axmbuf, aymbuf)
+
+        resultx = np.empty_like(x)
+        resulty = np.empty_like(y)
+        resultvx = np.empty_like(vx)
+        resultvy = np.empty_like(vy)
+        resultaxm = np.empty_like(axm)
+        resultaym = np.empty_like(aym)
+        cl.enqueue_copy(queue, resultx, xbuf)
+        cl.enqueue_copy(queue, resulty, ybuf)
+        cl.enqueue_copy(queue, resultvx, vxbuf)
+        cl.enqueue_copy(queue, resultvy, vybuf)
+        cl.enqueue_copy(queue, resultaxm, axmbuf)
+        cl.enqueue_copy(queue, resultaym, aymbuf)
+        print(time.time() - start_time)
+        self.countError(nStr, mStr, xyStr, vStr, resultx, resulty, n)
+        return resultx, resulty, n
 
     def countError(self, nStr, mStr, xyStr, vStr, x, y, n):
         xScipy, yScipy, nScipy = self.scipy(nStr, mStr, xyStr, vStr)
@@ -555,5 +665,4 @@ class Solvers:
         sum = sum / (rmax**2)
         sum = math.sqrt(sum)
         print("Error:", sum)
-
 

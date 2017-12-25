@@ -86,7 +86,7 @@ class Tabs:
     def verlet(self):
         x, y, n = self.solvs.verlet(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                     self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        self.drawCircles(x, y, n)
+        # self.drawCircles(x, y, n)
 
     def drawCircles(self, x, y, n):
         self.mo.getAxes().clear()
@@ -110,41 +110,42 @@ class Tabs:
     def scipy(self):
         x, y, n = self.solvs.scipy(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                    self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        self.drawCircles(x, y, n)
+        # self.drawCircles(x, y, n)
 
     def verletThreading(self):
         x, y, n = self.solvs.verletThreading(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                              self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        self.drawCircles(x, y, n)
+        # self.drawCircles(x, y, n)
 
     def verletMultipricessing(self):
         x, y, n = self.solvs.verletMultiprocessing(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                                    self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        self.drawCircles(x, y, n)
+        # self.drawCircles(x, y, n)
 
     def verletCython1(self):
         x, y, n = self.solvs.verletCython1(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                 self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        self.drawCircles(x, y, n)
+        # self.drawCircles(x, y, n)
 
     def verletCython2(self):
         x, y, n = self.solvs.verletCython2(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                 self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        self.drawCircles(x, y, n)
+        # self.drawCircles(x, y, n)
 
     def verletCython3(self):
         x, y, n = self.solvs.verletCython3(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                 self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        self.drawCircles(x, y, n)
+        # self.drawCircles(x, y, n)
 
     def verletCython4(self):
         x, y, n = self.solvs.verletCython4(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                 self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        self.drawCircles(x, y, n)
+        # self.drawCircles(x, y, n)
 
     def verletOpencl(self):
-        self.solvs.verletOpencl(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
+        x, y, n = self.solvs.verletOpencl(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
                                 self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
+        # self.drawCircles(x, y, n)
 
     def setN(self, value):
         self.text4.insert(tkinter.INSERT, value)
