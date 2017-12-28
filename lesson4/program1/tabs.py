@@ -4,6 +4,7 @@ from tkinter.colorchooser import *
 import xml.etree.cElementTree as et
 import solvers
 
+M = 4
 
 class Tabs:
     def setXY(self, x, y):
@@ -84,68 +85,215 @@ class Tabs:
         self.mo.loadFromXml((xlim, xmax, ylim, ymax), circleList)
 
     def verlet(self):
-        x, y, n = self.solvs.verlet(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                    self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.verlet(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.verlet(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+                T+=t
+            T/=M
+            print(T)
+        return T
 
     def drawCircles(self, x, y, n):
         self.mo.getAxes().clear()
         r = 0
         color = (1,1,1)
+        if n >=10:
+            r = 10
+        else:
+            r = 15371e4
         for i in range(int(len(x)/n)):
             for j in range(n):
                 if j == 0:
-                    r = 6.9551e8
                     color = (1, 0, 0)
                 elif j == 1:
-                    r = 15371e4
-                    # r = 1737e3
                     color = (0, 1, 0)
-                else:
-                    r = 15371e4
-                    # r = 6371e3
+                elif j == 2:
                     color = (0, 0, 1)
+                elif j == 3:
+                    color = (1, 1, 0)
+                elif j == 4:
+                    color = (1, 0, 1)
+                elif j == 5:
+                    color = (0, 1, 1)
+                else:
+                    color = (0, 0, 0)
                 self.mo.drawCircle((x[i*n+j], y[i*n+j]), r, color)
 
     def scipy(self):
-        x, y, n = self.solvs.scipy(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                   self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.scipy(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.scipy(self.text4.get(1.0, tkinter.END),
+                                               self.text5.get(1.0, tkinter.END).split(" "),
+                                               self.text6.get(1.0, tkinter.END).split(" "),
+                                               self.text7.get(1.0, tkinter.END).split(" "))
+                T += t
+            T /= M
+            print(T)
+        return T
 
     def verletThreading(self):
-        x, y, n = self.solvs.verletThreading(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                             self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.verletThreading(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.verletThreading(self.text4.get(1.0, tkinter.END),
+                                               self.text5.get(1.0, tkinter.END).split(" "),
+                                               self.text6.get(1.0, tkinter.END).split(" "),
+                                               self.text7.get(1.0, tkinter.END).split(" "))
+                T += t
+            T /= M
+            print(T)
+        return T
 
     def verletMultipricessing(self):
-        x, y, n = self.solvs.verletMultiprocessing(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                                   self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.verletMultiprocessing(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.verletMultiprocessing(self.text4.get(1.0, tkinter.END),
+                                               self.text5.get(1.0, tkinter.END).split(" "),
+                                               self.text6.get(1.0, tkinter.END).split(" "),
+                                               self.text7.get(1.0, tkinter.END).split(" "))
+                T += t
+            T /= M
+            print(T)
+        return T
 
     def verletCython1(self):
-        x, y, n = self.solvs.verletCython1(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.verletCython1(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.verletCython1(self.text4.get(1.0, tkinter.END),
+                                               self.text5.get(1.0, tkinter.END).split(" "),
+                                               self.text6.get(1.0, tkinter.END).split(" "),
+                                               self.text7.get(1.0, tkinter.END).split(" "))
+                if i != 0:
+                    T += t
+            T /= M
+            print(T)
+        return T
 
     def verletCython2(self):
-        x, y, n = self.solvs.verletCython2(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.verletCython2(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.verletCython2(self.text4.get(1.0, tkinter.END),
+                                               self.text5.get(1.0, tkinter.END).split(" "),
+                                               self.text6.get(1.0, tkinter.END).split(" "),
+                                               self.text7.get(1.0, tkinter.END).split(" "))
+                if i != 0:
+                    T += t
+            T /= M
+            print(T)
+        return T
 
     def verletCython3(self):
-        x, y, n = self.solvs.verletCython3(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.verletCython3(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.verletCython3(self.text4.get(1.0, tkinter.END),
+                                               self.text5.get(1.0, tkinter.END).split(" "),
+                                               self.text6.get(1.0, tkinter.END).split(" "),
+                                               self.text7.get(1.0, tkinter.END).split(" "))
+                if i != 0:
+                    T += t
+            T /= M
+            print(T)
+        return T
 
     def verletCython4(self):
-        x, y, n = self.solvs.verletCython4(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.verletCython4(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.verletCython4(self.text4.get(1.0, tkinter.END),
+                                               self.text5.get(1.0, tkinter.END).split(" "),
+                                               self.text6.get(1.0, tkinter.END).split(" "),
+                                               self.text7.get(1.0, tkinter.END).split(" "))
+                if i != 0:
+                    T += t
+            T /= M
+            print(T)
+        return T
 
     def verletOpencl(self):
-        x, y, n = self.solvs.verletOpencl(self.text4.get(1.0, tkinter.END), self.text5.get(1.0, tkinter.END).split(" "),
-                                self.text6.get(1.0, tkinter.END).split(" "), self.text7.get(1.0, tkinter.END).split(" "))
-        # self.drawCircles(x, y, n)
+        T = 0
+        flag = self.text8.get(1.0, tkinter.END)
+        if flag.__eq__("count time"):
+            x, y, n, t = self.solvs.verletOpencl(self.text4.get(1.0, tkinter.END),
+                                           self.text5.get(1.0, tkinter.END).split(" "),
+                                           self.text6.get(1.0, tkinter.END).split(" "),
+                                           self.text7.get(1.0, tkinter.END).split(" "))
+            self.drawCircles(x, y, n)
+        else:
+            for i in range(M):
+                x, y, n, t = self.solvs.verletOpencl(self.text4.get(1.0, tkinter.END),
+                                               self.text5.get(1.0, tkinter.END).split(" "),
+                                               self.text6.get(1.0, tkinter.END).split(" "),
+                                               self.text7.get(1.0, tkinter.END).split(" "))
+                if i != 0:
+                    T += t
+            T /= M
+            print(T)
+        return T
 
     def setN(self, value):
         self.text4.insert(tkinter.INSERT, value)
@@ -240,6 +388,8 @@ class Tabs:
         self.text6.pack()
         self.text7 = tkinter.Text(page2, height=1, width=20)
         self.text7.pack()
+        self.text8 = tkinter.Text(page2, height=1, width=20)
+        self.text8.pack()
 
         # xml-file
         page3 = ttk.Frame(nb)

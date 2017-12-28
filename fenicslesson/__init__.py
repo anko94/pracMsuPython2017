@@ -7,7 +7,7 @@ from matplotlib import tri, pyplot as plt
 
 
 if __name__ == "__main__":
-    mesh_size = 10
+    mesh_size = 64
     p1 = Point(0, 0)
     p2 = Point(DOLFIN_PI, DOLFIN_PI)
     mesh = RectangleMesh(p1,p2,mesh_size,mesh_size)

@@ -2,6 +2,7 @@ from libc.math cimport sqrt
 from cython.parallel cimport parallel, prange
 import numpy as np
 import cython
+cimport openmp
 
 # with typed memoryview and with openmp
 @cython.boundscheck(False)
