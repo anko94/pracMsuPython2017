@@ -32,10 +32,10 @@ if __name__ == "__main__":
         return on_boundary and (near(x[0], 0, FENICS_EPS) or near(x[0], FENICS_PI, FENICS_EPS))
     bc0 = DirichletBC(V, u0, boundary1)
 
-    # Set PETSc MUMPS paramter (this is required to prevent a memory error
-    # in some cases when using MUMPS LU solver).
-    if has_petsc():
-        PETScOptions.set("mat_mumps_icntl_14", 40.0)
+    # # Set PETSc MUMPS paramter (this is required to prevent a memory error
+    # # in some cases when using MUMPS LU solver).
+    # if has_petsc():
+    #     PETScOptions.set("mat_mumps_icntl_14", 40.0)
 
     # Compute solution
     u = Function(V)
@@ -46,6 +46,7 @@ if __name__ == "__main__":
     u_A = Expression(
         "sinh(4*x[0])/sinh(4*pi)*cos(4*x[1])+(sinh(4*x[1])/4-cosh(4*pi)/(4*sinh(4*pi))*cosh(4*x[1]))*sin(4*x[0])+1/(6*sinh(6*pi))*cosh(6*x[1])*sin(6*x[0])",
         degree=5)
+
     error_L2 = errornorm(u_A, u, 'L2')
     print(error_L2)
 
